@@ -29,13 +29,9 @@ func (svc anomalyDetector) FindAnomaly(ID string) (int, error) {
 		return 404, nil
 	}
 
-	// _, prs := svc.apps[ID]
-	// if !prs {
-	// 	return 500, nil
-	// }
+	ret := getAppData(ID)
 
-	ret, _ := findStdDev(ID)
-	return int(ret), nil
+	return int(ret[0]), nil
 
 }
 
