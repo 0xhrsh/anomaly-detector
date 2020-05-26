@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -23,12 +22,4 @@ func findStdDev(arr []int) (float64, float64) {
 	stdDev := math.Sqrt(variance)
 
 	return mean, stdDev
-}
-func main() {
-	arr := []int{1, 2, 3, 4, 5}
-
-	mean, stdDev := findStdDev(arr)
-
-	fmt.Println(mean, stdDev)
-
 }
