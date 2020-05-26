@@ -1,6 +1,8 @@
 package main
 
-import "errors"
+import (
+	"errors"
+)
 
 // AnomalyDetector provides operations to detect anomalies.
 type AnomalyDetector interface {
@@ -21,17 +23,19 @@ type app struct {
 }
 
 // FindAnomaly finds anomaly for a given app
-func (svc anomalyDetector) FindAnomaly(s string) (int, error) {
+func (svc anomalyDetector) FindAnomaly(ID string) (int, error) {
 
-	if s == "" {
+	if ID == "" {
 		return 404, nil
 	}
 
-	_, prs := svc.apps[s]
-	if !prs {
-		return 500, nil
-	}
-	return 200, ErrEmpty
+	// _, prs := svc.apps[ID]
+	// if !prs {
+	// 	return 500, nil
+	// }
+
+	ret, _ := findStdDev(ID)
+	return int(ret), nil
 
 }
 
