@@ -32,9 +32,21 @@ func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
 		return 404, nil
 	}
 
-	ret, app := getAppData(ID, Date, svc.db)
+	numbers, app := getAppData(ID, Date, svc.db)
+	code := 0
+	if float64(app.Dau) > numbers.meanDau+2*numbers.stdDau || float64(app.Dau) < numbers.meanDau-2*numbers.stdDau {
+		code++
+	}
 
-	return app.Dau - int(ret.meanDau), nil
+	if float64(app.Requests) > numbers.meanRequests+2*numbers.stdRequests || float64(app.Requests) < numbers.meanRequests-2*numbers.stdRequests {
+		code += 10
+	}
+
+	if float64(app.Response) > numbers.meanResponse+2*numbers.stdResponse || float64(app.Response) < numbers.meanResponse-2*numbers.stdResponse {
+		code += 100
+	}
+
+	return code, nil
 
 }
 
