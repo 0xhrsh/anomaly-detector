@@ -9,7 +9,7 @@ import (
 
 var readNumbers = `SELECT *
 FROM data
-WHERE id = ($1);`
+WHERE id = ($1) and date < ($2);`
 
 var readApp = `SELECT * FROM data where id = ($1) and date = ($2);`
 
@@ -45,7 +45,7 @@ type appNumbers struct {
 
 func getAppData(ID string, Date string, db *sql.DB) (appNumbers, App) {
 
-	rows, err := db.Query(readNumbers, ID)
+	rows, err := db.Query(readNumbers, ID, Date)
 	if err != nil {
 		log.Panic(err)
 	}
