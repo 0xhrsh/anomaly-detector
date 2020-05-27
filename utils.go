@@ -13,7 +13,7 @@ const (
 	dbname   = "apps"
 )
 
-func initAnomaly() anomalyDetector {
+func initAnomaly() AnomalyDetector {
 	svc := anomalyDetector{}
 	svc.db = connectToServer()
 	return svc
@@ -28,7 +28,6 @@ func connectToServer() *sql.DB {
 	if err != nil {
 		panic(err)
 	}
-	// defer db.Close()
 
 	err = db.Ping()
 	if err != nil {
