@@ -6,15 +6,16 @@ import (
 
 // AnomalyDetector provides operations to detect anomalies.
 type AnomalyDetector interface {
-	FindAnomaly(string) (int, error)
+	FindAnomaly(string, string) (int, error)
 }
 
 // appInfo is a concrete implementation of AnomalyDetector
 type anomalyDetector struct {
-	apps map[string]app
+	apps map[string]App
 }
 
-type app struct {
+// App contains all fields of app
+type App struct {
 	Date     string `json:"date"`
 	ID       string `json:"app"`
 	Dau      int    `json:"dau"`
@@ -23,15 +24,15 @@ type app struct {
 }
 
 // FindAnomaly finds anomaly for a given app
-func (svc anomalyDetector) FindAnomaly(ID string) (int, error) {
+func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
 
 	if ID == "" {
 		return 404, nil
 	}
 
-	ret := getAppData(ID)
+	ret, app := getAppData(ID, Date)
 
-	return int(ret[0]), nil
+	return app.Dau - int(ret.meanDau), nil
 
 }
 

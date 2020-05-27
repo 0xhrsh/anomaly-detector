@@ -1,13 +1,17 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
 	"math"
 )
 
-var readSQL = `SELECT *
+var readNumbers = `SELECT *
 FROM data
 WHERE id = ($1);`
+
+var readApp = `SELECT * FROM data where id = ($1) and date = ($2);`
 
 func findStdDev(arr []int) (float64, float64) {
 
@@ -30,41 +34,51 @@ func findStdDev(arr []int) (float64, float64) {
 	return mean, stdDev
 }
 
-func getAppData(ID string) []float64 {
+type appNumbers struct {
+	meanDau      float64
+	stdDau       float64
+	meanRequests float64
+	stdRequests  float64
+	meanResponse float64
+	stdResponse  float64
+}
+
+func getAppData(ID string, Date string) (appNumbers, App) {
 	db := connectToServer()
 	defer db.Close()
 
-	rows, err := db.Query(readSQL, ID)
+	rows, err := db.Query(readNumbers, ID)
 	if err != nil {
 		log.Panic(err)
 	}
-	defer rows.Close()
 
 	var arrDau []int
 	var arrRequests []int
 	var arrResponse []int
+	var ret appNumbers
+	var app App
 
 	for rows.Next() {
-		var obj app
-		err = rows.Scan(&obj.Date, &obj.ID, &obj.Dau, &obj.Requests, &obj.Response)
-		arrDau = append(arrDau, obj.Dau)
-		arrRequests = append(arrRequests, obj.Requests)
-		arrResponse = append(arrResponse, obj.Response)
+		err = rows.Scan(&app.Date, &app.ID, &app.Dau, &app.Requests, &app.Response)
+		arrDau = append(arrDau, app.Dau)
+		arrRequests = append(arrRequests, app.Requests)
+		arrResponse = append(arrResponse, app.Response)
+	}
+	rows.Close()
+
+	ret.meanDau, ret.stdDau = findStdDev(arrDau)
+	ret.meanRequests, ret.stdRequests = findStdDev(arrRequests)
+	ret.meanResponse, ret.stdResponse = findStdDev(arrResponse)
+
+	row := db.QueryRow(readApp, ID, Date)
+	err = row.Scan(&app.Date, &app.ID, &app.Dau, &app.Requests, &app.Response)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Println("Zero rows found")
+		} else {
+			panic(err)
+		}
 	}
 
-	var ret []float64
-
-	a, b := findStdDev(arrDau)
-	ret = append(ret, a)
-	ret = append(ret, b)
-
-	a, b = findStdDev(arrRequests)
-	ret = append(ret, a)
-	ret = append(ret, b)
-
-	a, b = findStdDev(arrResponse)
-	ret = append(ret, a)
-	ret = append(ret, b)
-
-	return ret
+	return ret, app
 }
