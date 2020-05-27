@@ -43,9 +43,7 @@ type appNumbers struct {
 	stdResponse  float64
 }
 
-func getAppData(ID string, Date string) (appNumbers, App) {
-	db := connectToServer()
-	defer db.Close()
+func getAppData(ID string, Date string, db *sql.DB) (appNumbers, App) {
 
 	rows, err := db.Query(readNumbers, ID)
 	if err != nil {

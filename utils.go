@@ -13,6 +13,12 @@ const (
 	dbname   = "apps"
 )
 
+func initAnomaly() anomalyDetector {
+	svc := anomalyDetector{}
+	svc.db = connectToServer()
+	return svc
+}
+
 func connectToServer() *sql.DB {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",

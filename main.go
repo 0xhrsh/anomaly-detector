@@ -8,10 +8,9 @@ import (
 )
 
 func main() {
-	svc := anomalyDetector{}
 
 	findAnomalyHandler := httptransport.NewServer(
-		makeFindAnomalyEndpoint(svc),
+		makeFindAnomalyEndpoint(initAnomaly()),
 		decodeFindAnomalyRequest,
 		encodeResponse,
 	)

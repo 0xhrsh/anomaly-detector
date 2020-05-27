@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"errors"
 )
 
@@ -11,6 +12,7 @@ type AnomalyDetector interface {
 
 // appInfo is a concrete implementation of AnomalyDetector
 type anomalyDetector struct {
+	db   *sql.DB
 	apps map[string]App
 }
 
@@ -30,7 +32,7 @@ func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
 		return 404, nil
 	}
 
-	ret, app := getAppData(ID, Date)
+	ret, app := getAppData(ID, Date, svc.db)
 
 	return app.Dau - int(ret.meanDau), nil
 
