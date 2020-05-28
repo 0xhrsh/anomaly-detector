@@ -30,7 +30,7 @@ type App struct {
 func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
 
 	if ID == "" {
-		return 111, nil
+		return 0, ErrEmpty
 	}
 
 	if Date == "" {
