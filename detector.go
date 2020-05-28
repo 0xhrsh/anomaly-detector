@@ -28,6 +28,7 @@ func findStdDev(arr []int) (float64, float64) {
 }
 
 type appNumbers struct {
+	app          App
 	meanDau      float64
 	stdDau       float64
 	meanRequests float64
@@ -36,10 +37,10 @@ type appNumbers struct {
 	stdResponse  float64
 }
 
-func (ret *appNumbers) getAppNumbers(ID string, Date string, db *sql.DB) error {
+func (num *appNumbers) getAppNumbers(db *sql.DB) error {
 	var readNumbers = `SELECT * FROM data WHERE id = ($1) and date < ($2);`
 
-	rows, err := db.Query(readNumbers, ID, Date)
+	rows, err := db.Query(readNumbers, num.app.ID, num.app.Date)
 	if err != nil {
 		return err
 	}
@@ -57,9 +58,9 @@ func (ret *appNumbers) getAppNumbers(ID string, Date string, db *sql.DB) error {
 	}
 	rows.Close()
 
-	ret.meanDau, ret.stdDau = findStdDev(arrDau)
-	ret.meanRequests, ret.stdRequests = findStdDev(arrRequests)
-	ret.meanResponse, ret.stdResponse = findStdDev(arrResponse)
+	num.meanDau, num.stdDau = findStdDev(arrDau)
+	num.meanRequests, num.stdRequests = findStdDev(arrRequests)
+	num.meanResponse, num.stdResponse = findStdDev(arrResponse)
 
 	return nil
 }

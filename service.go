@@ -37,28 +37,28 @@ func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
 		Date = time.Now().Format("2006-01-02")
 	}
 	var numbers appNumbers
-	var app App
-	app.ID = ID
-	app.Date = Date
 
-	err := numbers.getAppNumbers(ID, Date, svc.db)
+	numbers.app.ID = ID
+	numbers.app.Date = Date
+
+	err := numbers.getAppNumbers(svc.db)
 	if err != nil {
 		return 0, err
 	}
-	err = app.getAppData(svc.db)
+	err = numbers.app.getAppData(svc.db)
 	if err != nil {
 		return 0, err
 	}
 	code := 0
-	if float64(app.Dau) > numbers.meanDau+2*numbers.stdDau || float64(app.Dau) < numbers.meanDau-2*numbers.stdDau {
+	if float64(numbers.app.Dau) > numbers.meanDau+2*numbers.stdDau || float64(numbers.app.Dau) < numbers.meanDau-2*numbers.stdDau {
 		code++
 	}
 
-	if float64(app.Requests) > numbers.meanRequests+2*numbers.stdRequests || float64(app.Requests) < numbers.meanRequests-2*numbers.stdRequests {
+	if float64(numbers.app.Requests) > numbers.meanRequests+2*numbers.stdRequests || float64(numbers.app.Requests) < numbers.meanRequests-2*numbers.stdRequests {
 		code += 10
 	}
 
-	if float64(app.Response) > numbers.meanResponse+2*numbers.stdResponse || float64(app.Response) < numbers.meanResponse-2*numbers.stdResponse {
+	if float64(numbers.app.Response) > numbers.meanResponse+2*numbers.stdResponse || float64(numbers.app.Response) < numbers.meanResponse-2*numbers.stdResponse {
 		code += 100
 	}
 
