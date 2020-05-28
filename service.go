@@ -41,8 +41,14 @@ func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
 	app.ID = ID
 	app.Date = Date
 
-	numbers.getAppNumbers(ID, Date, svc.db)
-	app.getAppData(svc.db)
+	err := numbers.getAppNumbers(ID, Date, svc.db)
+	if err != nil {
+		return 0, err
+	}
+	err = app.getAppData(svc.db)
+	if err != nil {
+		return 0, err
+	}
 	code := 0
 	if float64(app.Dau) > numbers.meanDau+2*numbers.stdDau || float64(app.Dau) < numbers.meanDau-2*numbers.stdDau {
 		code++

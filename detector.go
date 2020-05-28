@@ -2,8 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
-	"log"
+	"errors"
 	"math"
 )
 
@@ -37,12 +36,12 @@ type appNumbers struct {
 	stdResponse  float64
 }
 
-func (ret *appNumbers) getAppNumbers(ID string, Date string, db *sql.DB) {
+func (ret *appNumbers) getAppNumbers(ID string, Date string, db *sql.DB) error {
 	var readNumbers = `SELECT * FROM data WHERE id = ($1) and date < ($2);`
 
 	rows, err := db.Query(readNumbers, ID, Date)
 	if err != nil {
-		log.Panic(err)
+		return err
 	}
 
 	var app App
@@ -62,9 +61,10 @@ func (ret *appNumbers) getAppNumbers(ID string, Date string, db *sql.DB) {
 	ret.meanRequests, ret.stdRequests = findStdDev(arrRequests)
 	ret.meanResponse, ret.stdResponse = findStdDev(arrResponse)
 
+	return nil
 }
 
-func (app *App) getAppData(db *sql.DB) {
+func (app *App) getAppData(db *sql.DB) error {
 
 	var readApp = `SELECT * FROM data where id = ($1) and date = ($2);`
 
@@ -72,9 +72,9 @@ func (app *App) getAppData(db *sql.DB) {
 	err := row.Scan(&app.Date, &app.ID, &app.Dau, &app.Requests, &app.Response)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			fmt.Println("Zero rows found")
-		} else {
-			panic(err)
+			return errors.New("No Data for App: " + app.ID + " for date: " + app.Date)
 		}
+		return err
 	}
+	return nil
 }
