@@ -7,12 +7,6 @@ import (
 	"math"
 )
 
-var readNumbers = `SELECT *
-FROM data
-WHERE id = ($1) and date < ($2);`
-
-var readApp = `SELECT * FROM data where id = ($1) and date = ($2);`
-
 func findStdDev(arr []int) (float64, float64) {
 
 	sum := 0
@@ -44,6 +38,7 @@ type appNumbers struct {
 }
 
 func (ret *appNumbers) getAppNumbers(ID string, Date string, db *sql.DB) {
+	var readNumbers = `SELECT * FROM data WHERE id = ($1) and date < ($2);`
 
 	rows, err := db.Query(readNumbers, ID, Date)
 	if err != nil {
@@ -67,10 +62,11 @@ func (ret *appNumbers) getAppNumbers(ID string, Date string, db *sql.DB) {
 	ret.meanRequests, ret.stdRequests = findStdDev(arrRequests)
 	ret.meanResponse, ret.stdResponse = findStdDev(arrResponse)
 
-	// return ret, app
 }
 
 func (app *App) getAppData(db *sql.DB) {
+
+	var readApp = `SELECT * FROM data where id = ($1) and date = ($2);`
 
 	row := db.QueryRow(readApp, app.ID, app.Date)
 	err := row.Scan(&app.Date, &app.ID, &app.Dau, &app.Requests, &app.Response)
