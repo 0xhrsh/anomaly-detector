@@ -12,8 +12,8 @@ type AnomalyDetector interface {
 
 // appInfo is a concrete implementation of AnomalyDetector
 type anomalyDetector struct {
-	db   *sql.DB
-	apps map[string]App
+	db  *sql.DB
+	app App
 }
 
 // App contains all fields of app
@@ -31,8 +31,13 @@ func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
 	if ID == "" {
 		return 404, nil
 	}
+	var numbers appNumbers
+	var app App
+	app.ID = ID
+	app.Date = Date
 
-	numbers, app := getAppData(ID, Date, svc.db)
+	numbers.getAppNumbers(ID, Date, svc.db)
+	app.getAppData(svc.db)
 	code := 0
 	if float64(app.Dau) > numbers.meanDau+2*numbers.stdDau || float64(app.Dau) < numbers.meanDau-2*numbers.stdDau {
 		code++

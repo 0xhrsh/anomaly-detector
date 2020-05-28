@@ -43,18 +43,17 @@ type appNumbers struct {
 	stdResponse  float64
 }
 
-func getAppData(ID string, Date string, db *sql.DB) (appNumbers, App) {
+func (ret *appNumbers) getAppNumbers(ID string, Date string, db *sql.DB) {
 
 	rows, err := db.Query(readNumbers, ID, Date)
 	if err != nil {
 		log.Panic(err)
 	}
 
+	var app App
 	var arrDau []int
 	var arrRequests []int
 	var arrResponse []int
-	var ret appNumbers
-	var app App
 
 	for rows.Next() {
 		err = rows.Scan(&app.Date, &app.ID, &app.Dau, &app.Requests, &app.Response)
@@ -68,8 +67,13 @@ func getAppData(ID string, Date string, db *sql.DB) (appNumbers, App) {
 	ret.meanRequests, ret.stdRequests = findStdDev(arrRequests)
 	ret.meanResponse, ret.stdResponse = findStdDev(arrResponse)
 
-	row := db.QueryRow(readApp, ID, Date)
-	err = row.Scan(&app.Date, &app.ID, &app.Dau, &app.Requests, &app.Response)
+	// return ret, app
+}
+
+func (app *App) getAppData(db *sql.DB) {
+
+	row := db.QueryRow(readApp, app.ID, app.Date)
+	err := row.Scan(&app.Date, &app.ID, &app.Dau, &app.Requests, &app.Response)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			fmt.Println("Zero rows found")
@@ -77,6 +81,4 @@ func getAppData(ID string, Date string, db *sql.DB) (appNumbers, App) {
 			panic(err)
 		}
 	}
-
-	return ret, app
 }
