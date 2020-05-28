@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"errors"
+	"time"
 )
 
 // AnomalyDetector provides operations to detect anomalies.
@@ -29,7 +30,11 @@ type App struct {
 func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
 
 	if ID == "" {
-		return 404, nil
+		return 111, nil
+	}
+
+	if Date == "" {
+		Date = time.Now().Format("2006-01-02")
 	}
 	var numbers appNumbers
 	var app App
