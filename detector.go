@@ -1,8 +1,6 @@
 package main
 
 import (
-	"database/sql"
-	"errors"
 	"math"
 )
 
@@ -37,26 +35,20 @@ type appNumbers struct {
 	stdResponse  float64
 }
 
-func (num *appNumbers) getAppNumbers(db *sql.DB) error {
-	var readNumbers = `SELECT * FROM data WHERE id = ($1) and date < ($2);`
+func (num *appNumbers) getAppNumbers() error {
 
-	rows, err := db.Query(readNumbers, num.app.ID, num.app.Date)
-	if err != nil {
-		return err
-	}
-
-	var app App
 	var arrDau []int
 	var arrRequests []int
 	var arrResponse []int
 
-	for rows.Next() {
-		err = rows.Scan(&app.Date, &app.ID, &app.Dau, &app.Requests, &app.Response)
-		arrDau = append(arrDau, app.Dau)
-		arrRequests = append(arrRequests, app.Requests)
-		arrResponse = append(arrResponse, app.Response)
+	var data nostalgiaResponse
+	data.getNostalgiaResponse()
+
+	for i := 0; i < len(data.Result); i++ {
+		arrDau = append(arrDau, data.Result[i].Dau)
+		arrRequests = append(arrRequests, data.Result[i].Requests)
+		arrResponse = append(arrResponse, data.Result[i].Response)
 	}
-	rows.Close()
 
 	num.meanDau, num.stdDau = findStdDev(arrDau)
 	num.meanRequests, num.stdRequests = findStdDev(arrRequests)
@@ -65,17 +57,27 @@ func (num *appNumbers) getAppNumbers(db *sql.DB) error {
 	return nil
 }
 
-func (app *App) getAppData(db *sql.DB) error {
+func (app *App) getAppData() error {
+	var arrDau []int
+	var arrRequests []int
+	var arrResponse []int
 
-	var readApp = `SELECT * FROM data where id = ($1) and date = ($2);`
+	var data nostalgiaResponse
+	data.getNostalgiaResponse()
 
-	row := db.QueryRow(readApp, app.ID, app.Date)
-	err := row.Scan(&app.Date, &app.ID, &app.Dau, &app.Requests, &app.Response)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return errors.New("No Data for App: " + app.ID + " for date: " + app.Date)
-		}
-		return err
+	for i := 0; i < len(data.Result); i++ {
+		arrDau = append(arrDau, data.Result[i].Dau)
+		arrRequests = append(arrRequests, data.Result[i].Requests)
+		arrResponse = append(arrResponse, data.Result[i].Response)
 	}
+
+	Dau, _ := findStdDev(arrDau)
+	Requests, _ := findStdDev(arrRequests)
+	Response, _ := findStdDev(arrResponse)
+
+	app.Dau = int(Dau)
+	app.Requests = int(Requests)
+	app.Response = int(Response)
+
 	return nil
 }
