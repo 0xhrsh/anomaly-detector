@@ -57,27 +57,19 @@ func (num *appNumbers) getAppNumbers() error {
 	return nil
 }
 
-func (app *App) getAppData() error {
-	var arrDau []int
-	var arrRequests []int
-	var arrResponse []int
+func (app *App) getAppData(window int) error {
 
 	var data nostalgiaResponse
 	data.getNostalgiaResponse()
 
-	for i := 0; i < len(data.Result); i++ {
-		arrDau = append(arrDau, data.Result[i].Dau)
-		arrRequests = append(arrRequests, data.Result[i].Requests)
-		arrResponse = append(arrResponse, data.Result[i].Response)
+	for i := 0; i < window; i++ {
+		app.Dau += data.Result[i].Dau
+		app.Requests += data.Result[i].Requests
+		app.Response += data.Result[i].Response
 	}
-
-	Dau, _ := findStdDev(arrDau)
-	Requests, _ := findStdDev(arrRequests)
-	Response, _ := findStdDev(arrResponse)
-
-	app.Dau = int(Dau)
-	app.Requests = int(Requests)
-	app.Response = int(Response)
+	app.Dau /= window
+	app.Requests /= window
+	app.Response /= window
 
 	return nil
 }

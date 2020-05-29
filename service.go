@@ -43,7 +43,7 @@ func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	err = numbers.app.getAppData()
+	err = numbers.app.getAppData(3)
 	if err != nil {
 		return 0, err
 	}
