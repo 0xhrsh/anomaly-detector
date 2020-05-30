@@ -30,10 +30,10 @@ type nostalgiaResponse struct {
 	Result []App `json:"result"`
 }
 
-func (ret *nostalgiaResponse) getNostalgiaResponse() {
+func (nResp *nostalgiaResponse) getNostalgiaResponse() {
 	response, _ := ioutil.ReadFile("response.json")
 
-	err := json.Unmarshal([]byte(response), &ret)
+	err := json.Unmarshal([]byte(response), &nResp)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -43,4 +43,17 @@ func (ret *nostalgiaResponse) getNostalgiaResponse() {
 func initAnomaly() AnomalyDetector {
 	svc := anomalyDetector{}
 	return svc
+}
+
+func (nResp nostalgiaResponse) Len() int {
+	return len(nResp.Result)
+}
+
+func (nResp nostalgiaResponse) Swap(i, j int) {
+	nResp.Result[i], nResp.Result[j] = nResp.Result[j], nResp.Result[i]
+}
+
+func (nResp nostalgiaResponse) Less(i, j int) bool {
+
+	return nResp.Result[i].Date.After(nResp.Result[j].Date)
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"sort"
 )
 
 func findStdDev(arr []int) (float64, float64) {
@@ -33,6 +34,8 @@ func (num *appNumbers) getAppNumbers() error {
 
 	var data nostalgiaResponse
 	data.getNostalgiaResponse()
+
+	sort.Sort(data)
 
 	for i := 0; i < len(data.Result); i++ {
 		arrDau = append(arrDau, data.Result[i].Dau)
