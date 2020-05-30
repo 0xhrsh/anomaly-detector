@@ -33,7 +33,7 @@ func (num *appNumbers) getAppNumbers() error {
 	var arrResponse []int
 
 	var data nostalgiaResponse
-	data.getNostalgiaResponse()
+	data.getNostalgiaResponse(num.app.ID, num.app.Date, 15)
 
 	sort.Sort(data)
 

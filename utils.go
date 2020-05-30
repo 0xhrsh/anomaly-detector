@@ -30,7 +30,7 @@ type nostalgiaResponse struct {
 	Result []App `json:"result"`
 }
 
-func (nResp *nostalgiaResponse) getNostalgiaResponse() {
+func (nResp *nostalgiaResponse) getNostalgiaResponse(ID string, Date time.Time, window int) {
 	response, _ := ioutil.ReadFile("response.json")
 
 	err := json.Unmarshal([]byte(response), &nResp)
