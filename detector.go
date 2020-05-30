@@ -25,16 +25,6 @@ func findStdDev(arr []int) (float64, float64) {
 	return mean, stdDev
 }
 
-type appNumbers struct {
-	app          App
-	meanDau      float64
-	stdDau       float64
-	meanRequests float64
-	stdRequests  float64
-	meanResponse float64
-	stdResponse  float64
-}
-
 func (num *appNumbers) getAppNumbers() error {
 
 	var arrDau []int

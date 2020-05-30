@@ -12,16 +12,7 @@ type AnomalyDetector interface {
 
 // appInfo is a concrete implementation of AnomalyDetector
 type anomalyDetector struct {
-	app App
-}
-
-// App contains all fields of app
-type App struct {
-	Date     time.Time `json:"date"`
-	ID       string    `json:"app"`
-	Dau      int       `json:"dau"`
-	Requests int       `json:"requests"`
-	Response int       `json:"responses"`
+	num appNumbers
 }
 
 // FindAnomaly finds anomaly for a given app
@@ -36,30 +27,29 @@ func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
 	}
 
 	var err error
-	var numbers appNumbers
 
-	numbers.app.ID = ID
+	svc.num.app.ID = ID
 
-	numbers.app.Date, err = time.Parse("2006-01-02T15:04:05.000Z", Date)
+	svc.num.app.Date, err = time.Parse("2006-01-02T15:04:05.000Z", Date)
 	if err != nil {
 		return 0, err
 	}
 
-	err = numbers.getAppNumbers()
+	err = svc.num.getAppNumbers()
 	if err != nil {
 		return 0, err
 	}
 
 	code := 0
-	if float64(numbers.app.Dau) > numbers.meanDau+2*numbers.stdDau || float64(numbers.app.Dau) < numbers.meanDau-2*numbers.stdDau {
+	if float64(svc.num.app.Dau) > svc.num.meanDau+2*svc.num.stdDau || float64(svc.num.app.Dau) < svc.num.meanDau-2*svc.num.stdDau {
 		code++
 	}
 
-	if float64(numbers.app.Requests) > numbers.meanRequests+2*numbers.stdRequests || float64(numbers.app.Requests) < numbers.meanRequests-2*numbers.stdRequests {
+	if float64(svc.num.app.Requests) > svc.num.meanRequests+2*svc.num.stdRequests || float64(svc.num.app.Requests) < svc.num.meanRequests-2*svc.num.stdRequests {
 		code += 10
 	}
 
-	if float64(numbers.app.Response) > numbers.meanResponse+2*numbers.stdResponse || float64(numbers.app.Response) < numbers.meanResponse-2*numbers.stdResponse {
+	if float64(svc.num.app.Response) > svc.num.meanResponse+2*svc.num.stdResponse || float64(svc.num.app.Response) < svc.num.meanResponse-2*svc.num.stdResponse {
 		code += 100
 	}
 

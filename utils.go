@@ -4,11 +4,26 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"time"
 )
 
-func initAnomaly() AnomalyDetector {
-	svc := anomalyDetector{}
-	return svc
+// App contains all fields of app
+type App struct {
+	Date     time.Time `json:"date"`
+	ID       string    `json:"app"`
+	Dau      int       `json:"dau"`
+	Requests int       `json:"requests"`
+	Response int       `json:"responses"`
+}
+
+type appNumbers struct {
+	app          App
+	meanDau      float64
+	stdDau       float64
+	meanRequests float64
+	stdRequests  float64
+	meanResponse float64
+	stdResponse  float64
 }
 
 type nostalgiaResponse struct {
@@ -23,4 +38,9 @@ func (ret *nostalgiaResponse) getNostalgiaResponse() {
 		fmt.Println(err)
 	}
 
+}
+
+func initAnomaly() AnomalyDetector {
+	svc := anomalyDetector{}
+	return svc
 }
