@@ -44,15 +44,12 @@ func (num *appNumbers) getAppNumbers() error {
 	num.meanRequests, num.stdRequests = findStdDev(arrRequests)
 	num.meanResponse, num.stdResponse = findStdDev(arrResponse)
 
-	num.app.getAppData(3)
+	num.app.getAppData(3, data)
 
 	return nil
 }
 
-func (app *App) getAppData(window int) error {
-
-	var data nostalgiaResponse
-	data.getNostalgiaResponse()
+func (app *App) getAppData(window int, data nostalgiaResponse) error {
 
 	for i := 0; i < window; i++ {
 		app.Dau += data.Result[i].Dau
