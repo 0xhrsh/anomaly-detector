@@ -54,6 +54,8 @@ func (num *appNumbers) getAppNumbers() error {
 	num.meanRequests, num.stdRequests = findStdDev(arrRequests)
 	num.meanResponse, num.stdResponse = findStdDev(arrResponse)
 
+	num.app.getAppData(3)
+
 	return nil
 }
 

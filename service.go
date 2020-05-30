@@ -17,11 +17,11 @@ type anomalyDetector struct {
 
 // App contains all fields of app
 type App struct {
-	Date     string `json:"date"`
-	ID       string `json:"app"`
-	Dau      int    `json:"dau"`
-	Requests int    `json:"requests"`
-	Response int    `json:"responses"`
+	Date     time.Time `json:"date"`
+	ID       string    `json:"app"`
+	Dau      int       `json:"dau"`
+	Requests int       `json:"requests"`
+	Response int       `json:"responses"`
 }
 
 // FindAnomaly finds anomaly for a given app
@@ -32,21 +32,24 @@ func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
 	}
 
 	if Date == "" {
-		Date = time.Now().Format("2006-01-02")
+		Date = time.Now().Format("2006-01-02T15:04:05.000Z")
 	}
+
+	var err error
 	var numbers appNumbers
 
 	numbers.app.ID = ID
-	numbers.app.Date = Date
 
-	err := numbers.getAppNumbers()
+	numbers.app.Date, err = time.Parse("2006-01-02T15:04:05.000Z", Date)
 	if err != nil {
 		return 0, err
 	}
-	err = numbers.app.getAppData(3)
+
+	err = numbers.getAppNumbers()
 	if err != nil {
 		return 0, err
 	}
+
 	code := 0
 	if float64(numbers.app.Dau) > numbers.meanDau+2*numbers.stdDau || float64(numbers.app.Dau) < numbers.meanDau-2*numbers.stdDau {
 		code++
