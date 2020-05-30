@@ -7,6 +7,11 @@ import (
 	"time"
 )
 
+func initAnomaly() AnomalyDetector {
+	svc := anomalyDetector{}
+	return svc
+}
+
 // App contains all fields of app
 type App struct {
 	Date     time.Time `json:"date"`
@@ -38,11 +43,6 @@ func (nResp *nostalgiaResponse) getNostalgiaResponse(ID string, Date time.Time, 
 		fmt.Println(err)
 	}
 
-}
-
-func initAnomaly() AnomalyDetector {
-	svc := anomalyDetector{}
-	return svc
 }
 
 func (nResp nostalgiaResponse) Len() int {
