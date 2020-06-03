@@ -1,4 +1,4 @@
-module bitbucket.org/harsh-not-haarsh/anomaly-detector/src/master
+module main
 
 go 1.14
 
