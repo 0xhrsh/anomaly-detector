@@ -14,11 +14,12 @@ func initAnomaly() AnomalyDetector {
 
 // App contains all fields of app
 type App struct {
-	Date     time.Time `json:"date"`
-	ID       string    `json:"app"`
-	Dau      int       `json:"dau"`
-	Requests int       `json:"requests"`
-	Response int       `json:"responses"`
+	Date        time.Time `json:"date"`
+	ID          string    `json:"app"`
+	Dau         int       `json:"dau"`
+	Requests    int       `json:"requests"`
+	Response    int       `json:"responses"`
+	Impressions int       `json:"impressions"`
 }
 
 type appNumbers struct {
