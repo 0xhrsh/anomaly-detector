@@ -52,6 +52,8 @@ func (nResp *nostalgiaResponse) getNostalgiaResponse(ID string, Date time.Time, 
 	req.Header.Set("User-Id", os.Getenv("USER_ID"))
 	req.Header.Set("Auth-Token", os.Getenv("AUTH_TOKEN"))
 	res, _ := client.Do(req)
+	defer res.Close()
+
 	decoder := json.NewDecoder(res.Body)
 	err = decoder.Decode(&nResp)
 
