@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"math"
 	"sort"
 )
@@ -51,12 +52,16 @@ func (num *appNumbers) getAppNumbers() error {
 	num.meanRequests, num.stdRequests = findStdDev(arrRequests)
 	num.meanResponse, num.stdResponse = findStdDev(arrResponse)
 
-	err = num.app.getAppData(3, data)
+	if len(data.Result) < 3 {
+		return errors.New("Not Sufficient data for Anomaly detection")
+	}
 
-	return err
+	num.app.getAppData(3, data)
+
+	return nil
 }
 
-func (app *App) getAppData(window int, data nostalgiaResponse) error {
+func (app *App) getAppData(window int, data nostalgiaResponse) {
 
 	for i := 0; i < window; i++ {
 		app.Dau += data.Result[i].Dau
@@ -67,5 +72,4 @@ func (app *App) getAppData(window int, data nostalgiaResponse) error {
 	app.Requests /= window
 	app.Response /= window
 
-	return nil
 }
