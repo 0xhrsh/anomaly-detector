@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
+	"net/http"
+	"os"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 func initAnomaly() AnomalyDetector {
@@ -36,13 +38,27 @@ type nostalgiaResponse struct {
 	Result []App `json:"result"`
 }
 
-func (nResp *nostalgiaResponse) getNostalgiaResponse(ID string, Date time.Time, window int) {
-	response, _ := ioutil.ReadFile("response.json")
+func (nResp *nostalgiaResponse) getNostalgiaResponse(ID string, Date time.Time, window int) error {
 
-	err := json.Unmarshal([]byte(response), &nResp)
+	client := &http.Client{}
+	godotenv.Load("auth.env")
+
+	req, err := http.NewRequest("GET", "http://go.greedygame.com/v3/nostalgia/report?from=2020-05-19&to=2020-05-25&dim=date,app&metrics=ad_responses,impressions,dau", nil) //
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
+
+	req.Header.Set("User-Id", os.Getenv("USER_ID"))
+	req.Header.Set("Auth-Token", os.Getenv("AUTH_TOKEN"))
+	res, _ := client.Do(req)
+	decoder := json.NewDecoder(res.Body)
+	err = decoder.Decode(&nResp)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 
 }
 

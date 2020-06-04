@@ -33,7 +33,11 @@ func (num *appNumbers) getAppNumbers() error {
 	var arrResponse []int
 
 	var data nostalgiaResponse
-	data.getNostalgiaResponse(num.app.ID, num.app.Date, 15)
+	err := data.getNostalgiaResponse(num.app.ID, num.app.Date, 15)
+
+	if err != nil {
+		return err
+	}
 
 	sort.Sort(data)
 
@@ -47,9 +51,9 @@ func (num *appNumbers) getAppNumbers() error {
 	num.meanRequests, num.stdRequests = findStdDev(arrRequests)
 	num.meanResponse, num.stdResponse = findStdDev(arrResponse)
 
-	num.app.getAppData(3, data)
+	err = num.app.getAppData(3, data)
 
-	return nil
+	return err
 }
 
 func (app *App) getAppData(window int, data nostalgiaResponse) error {
