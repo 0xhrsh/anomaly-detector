@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"math"
 	"time"
 )
 
@@ -41,20 +42,29 @@ func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
 	}
 
 	code := 0
-	if float64(svc.num.app.Dau) > svc.num.meanDau+2*svc.num.stdDau || float64(svc.num.app.Dau) < svc.num.meanDau-2*svc.num.stdDau {
+
+	if compareMetric(float64(svc.num.app.Dau), svc.num.meanDau, svc.num.stdDau) {
 		code++
 	}
-
-	if float64(svc.num.app.Requests) > svc.num.meanRequests+2*svc.num.stdRequests || float64(svc.num.app.Requests) < svc.num.meanRequests-2*svc.num.stdRequests {
+	if compareMetric(float64(svc.num.app.Requests), svc.num.meanRequests, svc.num.stdRequests) {
 		code += 10
 	}
-
-	if float64(svc.num.app.Response) > svc.num.meanResponse+2*svc.num.stdResponse || float64(svc.num.app.Response) < svc.num.meanResponse-2*svc.num.stdResponse {
+	if compareMetric(float64(svc.num.app.Response), svc.num.meanResponse, svc.num.stdResponse) {
 		code += 100
 	}
 
 	return code, nil
 
+}
+
+func compareMetric(num float64, mean float64, stdDev float64) bool {
+	if num > mean+math.Min(2*stdDev, 0.2*mean) {
+		return true
+	}
+	if num < mean-math.Min(2*stdDev, 0.15*mean) {
+		return true
+	}
+	return false
 }
 
 // ErrEmpty is returned when an input string is empty.
