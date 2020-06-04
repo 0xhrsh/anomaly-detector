@@ -3,16 +3,26 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
-	"os"
 	"time"
 
-	"github.com/joho/godotenv"
+	"github.com/vrischmann/envconfig"
 )
 
 func initAnomaly() AnomalyDetector {
 	svc := anomalyDetector{}
+
+	if err := envconfig.Init(&conf); err != nil {
+		log.Fatalln(err)
+	}
+
 	return svc
+}
+
+var conf struct {
+	UserID    string
+	AuthToken string
 }
 
 // App contains all fields of app
@@ -42,17 +52,17 @@ type nostalgiaResponse struct {
 func (nResp *nostalgiaResponse) getNostalgiaResponse(ID string, Date time.Time, window int) error {
 
 	client := &http.Client{}
-	godotenv.Load("auth.env")
+
 	url := fmt.Sprintf("http://go.greedygame.com/v3/nostalgia/report?app_id=%s&from=%s&to=%s&dim=date,app&metrics=ad_responses,impressions,dau", ID, Date.AddDate(0, 0, -1*window).Format("2006-01-02"), Date.AddDate(0, 0, -1).Format("2006-01-02"))
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return err
 	}
 
-	req.Header.Set("User-Id", os.Getenv("USER_ID"))
-	req.Header.Set("Auth-Token", os.Getenv("AUTH_TOKEN"))
+	req.Header.Set("User-Id", conf.UserID)
+	req.Header.Set("Auth-Token", conf.AuthToken)
 	res, _ := client.Do(req)
-	defer res.Close()
+	defer res.Body.Close()
 
 	decoder := json.NewDecoder(res.Body)
 	err = decoder.Decode(&nResp)
