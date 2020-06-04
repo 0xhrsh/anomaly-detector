@@ -23,14 +23,14 @@ func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
 	}
 
 	if Date == "" {
-		Date = time.Now().Format("2006-01-02T15:04:05.000Z")
+		Date = time.Now().Format("2006-01-02T15:04:05Z")
 	}
 
 	var err error
 
 	svc.num.app.ID = ID
 
-	svc.num.app.Date, err = time.Parse("2006-01-02T15:04:05.000Z", Date)
+	svc.num.app.Date, err = time.Parse("2006-01-02T15:04:05Z", Date)
 	if err != nil {
 		return 0, err
 	}
