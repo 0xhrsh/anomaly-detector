@@ -56,12 +56,12 @@ func (num *appNumbers) getAppNumbers() error {
 		return errors.New("Not Sufficient data for Anomaly detection")
 	}
 
-	num.app.getAppData(3, data)
+	num.app.getAppData(data, 3)
 
 	return nil
 }
 
-func (app *App) getAppData(window int, data nostalgiaResponse) {
+func (app *App) getAppData(data nostalgiaResponse, window int) {
 
 	for i := 0; i < window; i++ {
 		app.Dau += data.Result[i].Dau
