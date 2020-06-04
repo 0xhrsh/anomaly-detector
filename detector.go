@@ -34,7 +34,7 @@ func (num *appNumbers) getAppNumbers() error {
 	var arrResponse []int
 
 	var data nostalgiaResponse
-	err := data.getNostalgiaResponse(num.app.ID, num.app.Date, 15)
+	err := data.getNostalgiaResponse(num.app.ID, num.app.Date, 25)
 
 	if err != nil {
 		return err
