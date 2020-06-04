@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -42,8 +43,8 @@ func (nResp *nostalgiaResponse) getNostalgiaResponse(ID string, Date time.Time, 
 
 	client := &http.Client{}
 	godotenv.Load("auth.env")
-
-	req, err := http.NewRequest("GET", "http://go.greedygame.com/v3/nostalgia/report?from=2020-05-19&to=2020-05-25&dim=date,app&metrics=ad_responses,impressions,dau", nil) //
+	url := fmt.Sprintf("http://go.greedygame.com/v3/nostalgia/report?app_id=%s&from=%s&to=%s&dim=date,app&metrics=ad_responses,impressions,dau", ID, Date.AddDate(0, 0, -1*window).Format("2006-01-02"), Date.AddDate(0, 0, -1).Format("2006-01-02"))
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return err
 	}
