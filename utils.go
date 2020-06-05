@@ -25,7 +25,7 @@ type App struct {
 	ID          string    `json:"app"`
 	Dau         int       `json:"dau"`
 	Requests    int       `json:"requests"`
-	Response    int       `json:"responses"`
+	Responses   int       `json:"responses"`
 	Impressions int       `json:"impressions"`
 }
 
@@ -35,8 +35,8 @@ type appNumbers struct {
 	stdDau          float64
 	meanRequests    float64
 	stdRequests     float64
-	meanResponse    float64
-	stdResponse     float64
+	meanResponses   float64
+	stdResponses    float64
 	meanImpressions float64
 	stdImpressions  float64
 }

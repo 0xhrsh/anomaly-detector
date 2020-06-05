@@ -31,7 +31,7 @@ func (num *appNumbers) getAppNumbers(conf config) error {
 
 	var arrDau []int
 	var arrRequests []int
-	var arrResponse []int
+	var arrResponses []int
 	var arrImpressions []int
 
 	var data nostalgiaResponse
@@ -46,13 +46,13 @@ func (num *appNumbers) getAppNumbers(conf config) error {
 	for i := 0; i < len(data.Result); i++ {
 		arrDau = append(arrDau, data.Result[i].Dau)
 		arrRequests = append(arrRequests, data.Result[i].Requests)
-		arrResponse = append(arrResponse, data.Result[i].Response)
+		arrResponses = append(arrResponses, data.Result[i].Responses)
 		arrImpressions = append(arrImpressions, data.Result[i].Impressions)
 	}
 
 	num.meanDau, num.stdDau = findStdDev(arrDau)
 	num.meanRequests, num.stdRequests = findStdDev(arrRequests)
-	num.meanResponse, num.stdResponse = findStdDev(arrResponse)
+	num.meanResponses, num.stdResponses = findStdDev(arrResponses)
 	num.meanImpressions, num.stdImpressions = findStdDev(arrImpressions)
 
 	if len(data.Result) < 3 {
@@ -69,12 +69,12 @@ func (app *App) getAppData(data nostalgiaResponse, window int) {
 	for i := 0; i < window; i++ {
 		app.Dau += data.Result[i].Dau
 		app.Requests += data.Result[i].Requests
-		app.Response += data.Result[i].Response
+		app.Responses += data.Result[i].Responses
 		app.Impressions += data.Result[i].Impressions
 	}
 	app.Dau /= window
 	app.Requests /= window
-	app.Response /= window
-	app.Response /= window
+	app.Responses /= window
+	app.Responses /= window
 
 }
