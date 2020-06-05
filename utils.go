@@ -49,7 +49,7 @@ func (nResp *nostalgiaResponse) getNostalgiaResponse(ID string, Date time.Time, 
 
 	client := &http.Client{}
 
-	url := fmt.Sprintf(conf.Endpoint+"?app_id=%s&from=%s&to=%s&dim=date,app&metrics=ad_responses,impressions,dau", ID, Date.AddDate(0, 0, -1*window).Format("2006-01-02"), Date.AddDate(0, 0, -1).Format("2006-01-02"))
+	url := fmt.Sprintf(conf.Endpoint+"/v3/nostalgia/report?app_id=%s&from=%s&to=%s&dim=date,app&metrics=ad_responses,impressions,dau", ID, Date.AddDate(0, 0, -1*window).Format("2006-01-02"), Date.AddDate(0, 0, -1).Format("2006-01-02"))
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return err
