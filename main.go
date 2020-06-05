@@ -15,7 +15,7 @@ func main() {
 	}
 
 	findAnomalyHandler := httptransport.NewServer(
-		makeFindAnomalyEndpoint(NewAnomalyDetector(conf)),
+		makeFindAnomalyEndpoint(newAnomalyDetector(conf)),
 		decodeFindAnomalyRequest,
 		encodeResponse,
 	)

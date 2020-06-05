@@ -75,10 +75,10 @@ func compareMetric(num float64, mean float64, stdDev float64) bool {
 // ErrEmpty is returned when an input string is empty.
 var ErrEmpty = errors.New("empty string")
 
-func NewAnomalyDetector(config Config) AnomalyDetector {
+func newAnomalyDetector(config Config) AnomalyDetector {
 	svc := &anomalyDetector{
 		config:    config,
-		nostalgia: NewNostalgiaService(config),
+		nostalgia: newNostalgiaService(config),
 	}
 
 	return svc

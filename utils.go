@@ -4,8 +4,7 @@ import (
 	"time"
 )
 
-
-
+// Config contains the env config parameters to run the service
 type Config struct {
 	UserID    string `required:"true"`
 	AuthToken string `required:"true"`
@@ -33,7 +32,3 @@ type appNumbers struct {
 	meanImpressions float64
 	stdImpressions  float64
 }
-
-
-
-

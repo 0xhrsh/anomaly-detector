@@ -8,11 +8,12 @@ import (
 	"time"
 )
 
+// Nostalgia contains tools required to get data from Service Nostalgia
 type Nostalgia interface {
-	FetchAppDataForRange(appId string, date time.Time, window int) (*NostalgiaResponse, error)
+	FetchAppDataForRange(appID string, date time.Time, window int) (*NostalgiaResponse, error)
 }
 
-func NewNostalgiaService(config Config) Nostalgia {
+func newNostalgiaService(config Config) Nostalgia {
 	return &nostalgiaImpl{
 		config: config,
 		client: &http.Client{
@@ -26,24 +27,24 @@ type nostalgiaImpl struct {
 	client *http.Client
 }
 
-func (n *nostalgiaImpl) FetchAppDataForRange(appId string, date time.Time, window int) (*NostalgiaResponse, error) {
+func (n *nostalgiaImpl) FetchAppDataForRange(appID string, date time.Time, window int) (*NostalgiaResponse, error) {
 
-	requestUrl, err := url.Parse(n.config.Endpoint)
+	requestURL, err := url.Parse(n.config.Endpoint)
 	if err != nil {
 		return nil, err
 	}
-	requestUrl.Path = path.Join(requestUrl.Path, "v3", "nostalgia", "report")
+	requestURL.Path = path.Join(requestURL.Path, "v3", "nostalgia", "report")
 
-	query := requestUrl.Query()
-	query.Add("app_id", appId)
+	query := requestURL.Query()
+	query.Add("app_id", appID)
 	query.Add("from", date.AddDate(0, 0, -1*window).Format("2006-01-02"))
 	query.Add("to", date.AddDate(0, 0, -1).Format("2006-01-02"))
 	query.Add("dim", "date,app")
 	query.Add("metrics", "ad_responses,ad_requests,impressions,dau")
 
-	requestUrl.RawQuery = query.Encode()
+	requestURL.RawQuery = query.Encode()
 
-	req, err := http.NewRequest("GET", requestUrl.String(), nil)
+	req, err := http.NewRequest("GET", requestURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -68,6 +69,7 @@ func (n *nostalgiaImpl) FetchAppDataForRange(appId string, date time.Time, windo
 	return &nResp, nil
 }
 
+// NostalgiaResponse contains struct to unmarshal Nostalgia response
 type NostalgiaResponse struct {
 	Result []App `json:"result"`
 }
