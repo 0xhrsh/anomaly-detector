@@ -18,10 +18,10 @@ type findAnomalyResponse struct {
 	Err  string `json:"err,omitempty"`
 }
 
-func makeFindAnomalyEndpoint(svc AnomalyDetector, conf config) endpoint.Endpoint {
+func makeFindAnomalyEndpoint(svc AnomalyDetector) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		req := request.(findAnomalyRequest)
-		v, err := svc.FindAnomaly(req.ID, req.Date, conf)
+		v, err := svc.FindAnomaly(req.ID, req.Date)
 		if err != nil {
 			return findAnomalyResponse{v, err.Error()}, nil
 		}

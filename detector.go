@@ -27,15 +27,14 @@ func findStdDev(arr []int) (float64, float64) {
 	return mean, stdDev
 }
 
-func (num *appNumbers) getAppNumbers(conf config) error {
+func (num *appNumbers) getAppNumbers(nostalgia Nostalgia) error {
 
 	var arrDau []int
 	var arrRequests []int
 	var arrResponses []int
 	var arrImpressions []int
 
-	var data nostalgiaResponse
-	err := data.getNostalgiaResponse(num.app.ID, num.app.Date, 25, conf)
+	data, err := nostalgia.FetchAppDataForRange(num.app.ID, num.app.Date, 25)
 
 	if err != nil {
 		return err
@@ -64,7 +63,7 @@ func (num *appNumbers) getAppNumbers(conf config) error {
 	return nil
 }
 
-func (app *App) getAppData(data nostalgiaResponse, window int) {
+func (app *App) getAppData(data *NostalgiaResponse, window int) {
 
 	for i := 0; i < window; i++ {
 		app.Dau += data.Result[i].Dau

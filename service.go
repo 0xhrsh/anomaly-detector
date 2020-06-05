@@ -8,16 +8,18 @@ import (
 
 // AnomalyDetector provides operations to detect anomalies.
 type AnomalyDetector interface {
-	FindAnomaly(string, string, config) (int, error)
+	FindAnomaly(string, string) (int, error)
 }
 
 // appInfo is a concrete implementation of AnomalyDetector
 type anomalyDetector struct {
-	num appNumbers
+	nostalgia Nostalgia
+	num       appNumbers
+	config    Config
 }
 
 // FindAnomaly finds anomaly for a given app
-func (svc anomalyDetector) FindAnomaly(ID string, Date string, conf config) (int, error) {
+func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
 
 	if ID == "" {
 		return 0, ErrEmpty
@@ -36,7 +38,7 @@ func (svc anomalyDetector) FindAnomaly(ID string, Date string, conf config) (int
 		return 0, err
 	}
 
-	err = svc.num.getAppNumbers(conf)
+	err = svc.num.getAppNumbers(svc.nostalgia)
 	if err != nil {
 		return 0, err
 	}
@@ -72,3 +74,12 @@ func compareMetric(num float64, mean float64, stdDev float64) bool {
 
 // ErrEmpty is returned when an input string is empty.
 var ErrEmpty = errors.New("empty string")
+
+func NewAnomalyDetector(config Config) AnomalyDetector {
+	svc := &anomalyDetector{
+		config:    config,
+		nostalgia: NewNostalgiaService(config),
+	}
+
+	return svc
+}

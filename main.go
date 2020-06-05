@@ -9,13 +9,13 @@ import (
 )
 
 func main() {
-	var conf config
+	var conf Config
 	if err := envconfig.Init(&conf); err != nil {
 		log.Fatalln(err)
 	}
 
 	findAnomalyHandler := httptransport.NewServer(
-		makeFindAnomalyEndpoint(initAnomaly(), conf),
+		makeFindAnomalyEndpoint(NewAnomalyDetector(conf)),
 		decodeFindAnomalyRequest,
 		encodeResponse,
 	)
