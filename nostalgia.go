@@ -26,8 +26,6 @@ type nostalgiaImpl struct {
 	client *http.Client
 }
 
-
-
 func (n *nostalgiaImpl) FetchAppDataForRange(appId string, date time.Time, window int) (*NostalgiaResponse, error) {
 
 	requestUrl, err := url.Parse(n.config.Endpoint)
@@ -40,14 +38,11 @@ func (n *nostalgiaImpl) FetchAppDataForRange(appId string, date time.Time, windo
 	query.Add("app_id", appId)
 	query.Add("from", date.AddDate(0, 0, -1*window).Format("2006-01-02"))
 	query.Add("to", date.AddDate(0, 0, -1).Format("2006-01-02"))
-	query.Add("app_id", appId)
-	query.Add("app_id", appId)
 	query.Add("dim", "date,app")
-	query.Add("metrics", "ad_responses,impressions,dau")
+	query.Add("metrics", "ad_responses,ad_requests,impressions,dau")
 
 	requestUrl.RawQuery = query.Encode()
 
-	//url := fmt.Sprintf(conf.Endpoint+"/v3/nostalgia/report?app_id=%s&from=%s&to=%s&dim=date,app&metrics=ad_responses,impressions,dau", ID, Date.AddDate(0, 0, -1*window).Format("2006-01-02"), Date.AddDate(0, 0, -1).Format("2006-01-02"))
 	req, err := http.NewRequest("GET", requestUrl.String(), nil)
 	if err != nil {
 		return nil, err
@@ -64,7 +59,7 @@ func (n *nostalgiaImpl) FetchAppDataForRange(appId string, date time.Time, windo
 
 	var nResp NostalgiaResponse
 	decoder := json.NewDecoder(res.Body)
-	err = decoder.Decode(&nResp.Result)
+	err = decoder.Decode(&nResp)
 
 	if err != nil {
 		return nil, err
