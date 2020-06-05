@@ -30,5 +30,5 @@ Helps in finding anomalies in GreedyGame app numbers.
 ```
 - 
 ```
-   $ USER_ID=<user id> AUTH_TOKEN=<auth token> ./detector
+   $ USER_ID=<user id> AUTH_TOKEN=<auth token> ENDPOINT=<endpoint url> ./detector
 ```
