@@ -27,14 +27,14 @@ func findStdDev(arr []int) (float64, float64) {
 	return mean, stdDev
 }
 
-func (num *appNumbers) getAppNumbers() error {
+func (num *appNumbers) getAppNumbers(conf config) error {
 
 	var arrDau []int
 	var arrRequests []int
 	var arrResponse []int
 
 	var data nostalgiaResponse
-	err := data.getNostalgiaResponse(num.app.ID, num.app.Date, 25)
+	err := data.getNostalgiaResponse(num.app.ID, num.app.Date, 25, conf)
 
 	if err != nil {
 		return err

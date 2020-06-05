@@ -8,7 +8,7 @@ import (
 
 // AnomalyDetector provides operations to detect anomalies.
 type AnomalyDetector interface {
-	FindAnomaly(string, string) (int, error)
+	FindAnomaly(string, string, config) (int, error)
 }
 
 // appInfo is a concrete implementation of AnomalyDetector
@@ -17,7 +17,7 @@ type anomalyDetector struct {
 }
 
 // FindAnomaly finds anomaly for a given app
-func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
+func (svc anomalyDetector) FindAnomaly(ID string, Date string, conf config) (int, error) {
 
 	if ID == "" {
 		return 0, ErrEmpty
@@ -36,7 +36,7 @@ func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
 		return 0, err
 	}
 
-	err = svc.num.getAppNumbers()
+	err = svc.num.getAppNumbers(conf)
 	if err != nil {
 		return 0, err
 	}

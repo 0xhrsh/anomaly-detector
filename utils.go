@@ -3,24 +3,17 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
-
-	"github.com/vrischmann/envconfig"
 )
 
 func initAnomaly() AnomalyDetector {
 	svc := anomalyDetector{}
 
-	if err := envconfig.Init(&conf); err != nil {
-		log.Fatalln(err)
-	}
-
 	return svc
 }
 
-var conf struct {
+type config struct {
 	UserID    string
 	AuthToken string
 }
@@ -49,7 +42,7 @@ type nostalgiaResponse struct {
 	Result []App `json:"result"`
 }
 
-func (nResp *nostalgiaResponse) getNostalgiaResponse(ID string, Date time.Time, window int) error {
+func (nResp *nostalgiaResponse) getNostalgiaResponse(ID string, Date time.Time, window int, conf config) error {
 
 	client := &http.Client{}
 
@@ -89,6 +82,5 @@ func (nResp nostalgiaResponse) Swap(i, j int) {
 }
 
 func (nResp nostalgiaResponse) Less(i, j int) bool {
-
 	return nResp.Result[i].Date.After(nResp.Result[j].Date)
 }
