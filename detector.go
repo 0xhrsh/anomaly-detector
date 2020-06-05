@@ -32,6 +32,7 @@ func (num *appNumbers) getAppNumbers(conf config) error {
 	var arrDau []int
 	var arrRequests []int
 	var arrResponse []int
+	var arrImpressions []int
 
 	var data nostalgiaResponse
 	err := data.getNostalgiaResponse(num.app.ID, num.app.Date, 25, conf)
@@ -46,11 +47,13 @@ func (num *appNumbers) getAppNumbers(conf config) error {
 		arrDau = append(arrDau, data.Result[i].Dau)
 		arrRequests = append(arrRequests, data.Result[i].Requests)
 		arrResponse = append(arrResponse, data.Result[i].Response)
+		arrImpressions = append(arrImpressions, data.Result[i].Impressions)
 	}
 
 	num.meanDau, num.stdDau = findStdDev(arrDau)
 	num.meanRequests, num.stdRequests = findStdDev(arrRequests)
 	num.meanResponse, num.stdResponse = findStdDev(arrResponse)
+	num.meanImpressions, num.stdImpressions = findStdDev(arrImpressions)
 
 	if len(data.Result) < 3 {
 		return errors.New("Not Sufficient data for Anomaly detection")
@@ -67,9 +70,11 @@ func (app *App) getAppData(data nostalgiaResponse, window int) {
 		app.Dau += data.Result[i].Dau
 		app.Requests += data.Result[i].Requests
 		app.Response += data.Result[i].Response
+		app.Impressions += data.Result[i].Impressions
 	}
 	app.Dau /= window
 	app.Requests /= window
+	app.Response /= window
 	app.Response /= window
 
 }

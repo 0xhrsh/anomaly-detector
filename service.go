@@ -44,13 +44,16 @@ func (svc anomalyDetector) FindAnomaly(ID string, Date string, conf config) (int
 	code := 0
 
 	if compareMetric(float64(svc.num.app.Dau), svc.num.meanDau, svc.num.stdDau) {
-		code++
+		code += 1000
+	}
+	if compareMetric(float64(svc.num.app.Impressions), svc.num.meanImpressions, svc.num.stdImpressions) {
+		code += 100
 	}
 	if compareMetric(float64(svc.num.app.Requests), svc.num.meanRequests, svc.num.stdRequests) {
 		code += 10
 	}
 	if compareMetric(float64(svc.num.app.Response), svc.num.meanResponse, svc.num.stdResponse) {
-		code += 100
+		code++
 	}
 
 	return code, nil

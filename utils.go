@@ -30,13 +30,15 @@ type App struct {
 }
 
 type appNumbers struct {
-	app          App
-	meanDau      float64
-	stdDau       float64
-	meanRequests float64
-	stdRequests  float64
-	meanResponse float64
-	stdResponse  float64
+	app             App
+	meanDau         float64
+	stdDau          float64
+	meanRequests    float64
+	stdRequests     float64
+	meanResponse    float64
+	stdResponse     float64
+	meanImpressions float64
+	stdImpressions  float64
 }
 
 type nostalgiaResponse struct {
