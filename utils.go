@@ -32,3 +32,10 @@ type appNumbers struct {
 	meanImpressions float64
 	stdImpressions  float64
 }
+
+func signum(x float64) float64 {
+	if x >= 0 {
+		return 1.0
+	}
+	return -1.0
+}

@@ -16,11 +16,11 @@ type findAnomalyRequest struct {
 }
 
 type findAnomalyResponse struct {
-	AnomalyDau         int       `json:"dau,omitempty"`
-	AnomalyResponses   int       `json:"responses,omitempty"`
-	AnomalyRequests    int       `json:"requests,omitempty"`
-	AnomalyImpressions int       `json:"impressions,omitempty"`
-	AnomalyTime        time.Time `json:"time,omitempty"`
+	AnomalyDau         int       `json:"dau"`
+	AnomalyResponses   int       `json:"responses"`
+	AnomalyRequests    int       `json:"requests"`
+	AnomalyImpressions int       `json:"impressions"`
+	AnomalyTime        time.Time `json:"time"`
 	Err                string    `json:"err,omitempty"`
 }
 

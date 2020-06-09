@@ -6,9 +6,8 @@ import (
 	"sort"
 )
 
-func findStdDev(arr []int) (float64, float64) {
-
-	sum := 0
+func findStdDev(arr []float64) (float64, float64) {
+	sum := 0.0
 	for i := 0; i < len(arr); i++ {
 		sum += arr[i]
 	}
@@ -27,12 +26,26 @@ func findStdDev(arr []int) (float64, float64) {
 	return mean, stdDev
 }
 
-func (num *appNumbers) getAppNumbers(nostalgia Nostalgia) error {
+func getAdjustedNumbers(arr []float64, mean float64, stdDev float64) (float64, float64) {
+	var zArr []float64
 
-	var arrDau []int
-	var arrRequests []int
-	var arrResponses []int
-	var arrImpressions []int
+	for x := range arr {
+		z := (float64(arr[x]) - mean) / stdDev
+		if math.Abs(z) > 1 {
+			zArr = append(zArr, mean+signum(z)*math.Log10(math.Abs(z))*stdDev)
+		} else {
+			zArr = append(zArr, arr[x])
+		}
+	}
+
+	return findStdDev(zArr)
+}
+
+func (num *appNumbers) getAppNumbers(nostalgia Nostalgia) error {
+	var arrDau []float64
+	var arrRequests []float64
+	var arrResponses []float64
+	var arrImpressions []float64
 
 	data, err := nostalgia.FetchAppDataForRange(num.app.ID, num.app.Date, 25)
 
@@ -40,23 +53,28 @@ func (num *appNumbers) getAppNumbers(nostalgia Nostalgia) error {
 		return err
 	}
 
+	if len(data.Result) < 15 {
+		return errors.New("Not Sufficient data for Anomaly detection")
+	}
+
 	sort.Sort(data)
 
 	for i := 0; i < len(data.Result); i++ {
-		arrDau = append(arrDau, data.Result[i].Dau)
-		arrRequests = append(arrRequests, data.Result[i].Requests)
-		arrResponses = append(arrResponses, data.Result[i].Responses)
-		arrImpressions = append(arrImpressions, data.Result[i].Impressions)
+		arrDau = append(arrDau, float64(data.Result[i].Dau))
+		arrRequests = append(arrRequests, float64(data.Result[i].Requests))
+		arrResponses = append(arrResponses, float64(data.Result[i].Responses))
+		arrImpressions = append(arrImpressions, float64(data.Result[i].Impressions))
 	}
 
-	num.meanDau, num.stdDau = findStdDev(arrDau)
-	num.meanRequests, num.stdRequests = findStdDev(arrRequests)
-	num.meanResponses, num.stdResponses = findStdDev(arrResponses)
-	num.meanImpressions, num.stdImpressions = findStdDev(arrImpressions)
+	meanDau, stdDau := findStdDev(arrDau)
+	meanRequests, stdRequests := findStdDev(arrRequests)
+	meanResponses, stdResponses := findStdDev(arrResponses)
+	meanImpressions, stdImpressions := findStdDev(arrImpressions)
 
-	if len(data.Result) < 3 {
-		return errors.New("Not Sufficient data for Anomaly detection")
-	}
+	num.meanDau, num.stdDau = getAdjustedNumbers(arrDau, meanDau, stdDau)
+	num.meanRequests, num.stdRequests = getAdjustedNumbers(arrRequests, meanRequests, stdRequests)
+	num.meanResponses, num.stdResponses = getAdjustedNumbers(arrResponses, meanResponses, stdResponses)
+	num.meanImpressions, num.stdImpressions = getAdjustedNumbers(arrImpressions, meanImpressions, stdImpressions)
 
 	num.app.getAppData(data, 3)
 
