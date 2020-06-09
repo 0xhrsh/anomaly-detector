@@ -8,7 +8,7 @@ import (
 
 // AnomalyDetector provides operations to detect anomalies.
 type AnomalyDetector interface {
-	FindAnomaly(string, string) (int, error)
+	FindAnomaly(string, string) (findAnomalyResponse, error)
 }
 
 // appInfo is a concrete implementation of AnomalyDetector
@@ -19,10 +19,13 @@ type anomalyDetector struct {
 }
 
 // FindAnomaly finds anomaly for a given app
-func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
+func (svc anomalyDetector) FindAnomaly(ID string, Date string) (findAnomalyResponse, error) {
+
+	var resp findAnomalyResponse
+	resp.AnomalyTime = time.Now()
 
 	if ID == "" {
-		return 0, ErrEmpty
+		return resp, ErrEmpty
 	}
 
 	if Date == "" {
@@ -35,41 +38,34 @@ func (svc anomalyDetector) FindAnomaly(ID string, Date string) (int, error) {
 
 	svc.num.app.Date, err = time.Parse("2006-01-02", Date)
 	if err != nil {
-		return 0, err
+		return resp, err
 	}
 
 	err = svc.num.getAppNumbers(svc.nostalgia)
 	if err != nil {
-		return 0, err
+		return resp, err
 	}
 
-	code := 0
+	resp.AnomalyDau = compareMetric(float64(svc.num.app.Dau), svc.num.meanDau, svc.num.stdDau)
 
-	if compareMetric(float64(svc.num.app.Dau), svc.num.meanDau, svc.num.stdDau) {
-		code += 1000
-	}
-	if compareMetric(float64(svc.num.app.Impressions), svc.num.meanImpressions, svc.num.stdImpressions) {
-		code += 100
-	}
-	if compareMetric(float64(svc.num.app.Requests), svc.num.meanRequests, svc.num.stdRequests) {
-		code += 10
-	}
-	if compareMetric(float64(svc.num.app.Responses), svc.num.meanResponses, svc.num.stdResponses) {
-		code++
-	}
+	resp.AnomalyImpressions = compareMetric(float64(svc.num.app.Impressions), svc.num.meanImpressions, svc.num.stdImpressions)
 
-	return code, nil
+	resp.AnomalyRequests = compareMetric(float64(svc.num.app.Requests), svc.num.meanRequests, svc.num.stdRequests)
+
+	resp.AnomalyResponses = compareMetric(float64(svc.num.app.Responses), svc.num.meanResponses, svc.num.stdResponses)
+
+	return resp, nil
 
 }
 
-func compareMetric(num float64, mean float64, stdDev float64) bool {
+func compareMetric(num float64, mean float64, stdDev float64) int {
 	if num > mean+math.Min(2*stdDev, 0.2*mean) {
-		return true
+		return 1
 	}
 	if num < mean-math.Min(2*stdDev, 0.15*mean) {
-		return true
+		return -1
 	}
-	return false
+	return 0
 }
 
 // ErrEmpty is returned when an input string is empty.

@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-kit/kit/endpoint"
 )
@@ -14,18 +16,23 @@ type findAnomalyRequest struct {
 }
 
 type findAnomalyResponse struct {
-	Code int    `json:"code"`
-	Err  string `json:"err,omitempty"`
+	AnomalyDau         int       `json:"dau,omitempty"`
+	AnomalyResponses   int       `json:"responses,omitempty"`
+	AnomalyRequests    int       `json:"requests,omitempty"`
+	AnomalyImpressions int       `json:"impressions,omitempty"`
+	AnomalyTime        time.Time `json:"time,omitempty"`
+	Err                string    `json:"err,omitempty"`
 }
 
 func makeFindAnomalyEndpoint(svc AnomalyDetector) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		req := request.(findAnomalyRequest)
-		v, err := svc.FindAnomaly(req.ID, req.Date)
+		resp, err := svc.FindAnomaly(req.ID, req.Date)
 		if err != nil {
-			return findAnomalyResponse{v, err.Error()}, nil
+			resp.Err = fmt.Sprint(err)
+			return resp, nil
 		}
-		return findAnomalyResponse{v, ""}, nil
+		return resp, nil
 	}
 }
 
