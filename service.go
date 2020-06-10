@@ -2,13 +2,14 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"time"
 )
 
 // AnomalyDetector provides operations to detect anomalies.
 type AnomalyDetector interface {
-	FindAnomaly(string, string) (findAnomalyResponse, error)
+	FindAnomaly(string, string, string) ([]appResponse, error)
 }
 
 // appInfo is a concrete implementation of AnomalyDetector
@@ -19,40 +20,49 @@ type anomalyDetector struct {
 }
 
 // FindAnomaly finds anomaly for a given app
-func (svc anomalyDetector) FindAnomaly(ID string, Date string) (findAnomalyResponse, error) {
+func (svc anomalyDetector) FindAnomaly(ID string, Start string, End string) ([]appResponse, error) {
 
-	var resp findAnomalyResponse
-	resp.AnomalyTime = time.Now()
+	var resp []appResponse
 
 	if ID == "" {
 		return resp, ErrEmpty
 	}
 
-	if Date == "" {
-		Date = time.Now().Format("2006-01-02")
-	}
-
-	var err error
+	var (
+		err   error
+		start time.Time
+		end   time.Time
+	)
 
 	svc.num.app.ID = ID
 
-	svc.num.app.Date, err = time.Parse("2006-01-02", Date)
+	start, err = time.Parse("2006-01-02", Start)
+	if err != nil {
+		return resp, err
+	}
+	end, err = time.Parse("2006-01-02", End)
 	if err != nil {
 		return resp, err
 	}
 
-	err = svc.num.getAppNumbers(svc.nostalgia)
-	if err != nil {
-		return resp, err
+	for d := start; d.Before(end); d = d.AddDate(0, 0, 1) {
+		var dateResponse appResponse
+
+		svc.num.app.Date = d
+		err = svc.num.getAppNumbers(svc.nostalgia)
+		if err != nil {
+			dateResponse.Err = fmt.Sprint(err)
+			continue
+		}
+
+		dateResponse.AnomalyDau = compareMetric(float64(svc.num.app.Dau), svc.num.meanDau, svc.num.stdDau)
+		dateResponse.AnomalyImpressions = compareMetric(float64(svc.num.app.Impressions), svc.num.meanImpressions, svc.num.stdImpressions)
+		dateResponse.AnomalyRequests = compareMetric(float64(svc.num.app.Requests), svc.num.meanRequests, svc.num.stdRequests)
+		dateResponse.AnomalyResponses = compareMetric(float64(svc.num.app.Responses), svc.num.meanResponses, svc.num.stdResponses)
+
+		dateResponse.AnomalyTime = d
+		resp = append(resp, dateResponse)
 	}
-
-	resp.AnomalyDau = compareMetric(float64(svc.num.app.Dau), svc.num.meanDau, svc.num.stdDau)
-
-	resp.AnomalyImpressions = compareMetric(float64(svc.num.app.Impressions), svc.num.meanImpressions, svc.num.stdImpressions)
-
-	resp.AnomalyRequests = compareMetric(float64(svc.num.app.Requests), svc.num.meanRequests, svc.num.stdRequests)
-
-	resp.AnomalyResponses = compareMetric(float64(svc.num.app.Responses), svc.num.meanResponses, svc.num.stdResponses)
 
 	return resp, nil
 

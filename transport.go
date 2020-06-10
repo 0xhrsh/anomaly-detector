@@ -11,11 +11,12 @@ import (
 )
 
 type findAnomalyRequest struct {
-	ID   string `json:"id"`
-	Date string `json:"date"`
+	ID        string `json:"id"`
+	StartDate string `json:"start"`
+	EndDate   string `json:"end"`
 }
 
-type findAnomalyResponse struct {
+type appResponse struct {
 	AnomalyDau         int       `json:"dau"`
 	AnomalyResponses   int       `json:"responses"`
 	AnomalyRequests    int       `json:"requests"`
@@ -24,15 +25,21 @@ type findAnomalyResponse struct {
 	Err                string    `json:"err,omitempty"`
 }
 
+type findAnomalyResponse struct {
+	Response []appResponse `json:"response"`
+	Err      string        `json:"err,omitempty"`
+}
+
 func makeFindAnomalyEndpoint(svc AnomalyDetector) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		req := request.(findAnomalyRequest)
-		resp, err := svc.FindAnomaly(req.ID, req.Date)
-		if err != nil {
-			resp.Err = fmt.Sprint(err)
-			return resp, nil
-		}
-		return resp, nil
+		resp, err := svc.FindAnomaly(req.ID, req.StartDate, req.EndDate)
+
+		return findAnomalyResponse{
+			Response: resp,
+			Err:      fmt.Sprint(err),
+		}, nil
+
 	}
 }
 
