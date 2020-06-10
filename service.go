@@ -21,18 +21,16 @@ type anomalyDetector struct {
 
 // FindAnomaly finds anomaly for a given app
 func (svc anomalyDetector) FindAnomaly(ID string, Start string, End string) ([]AppResponse, error) {
-
-	var resp []AppResponse
-
-	if ID == "" {
-		return resp, ErrEmpty
-	}
-
 	var (
+		resp  []AppResponse
 		err   error
 		start time.Time
 		end   time.Time
 	)
+
+	if ID == "" {
+		return resp, ErrEmpty
+	}
 
 	svc.num.app.ID = ID
 
@@ -40,6 +38,7 @@ func (svc anomalyDetector) FindAnomaly(ID string, Start string, End string) ([]A
 	if err != nil {
 		return resp, err
 	}
+
 	end, err = time.Parse("2006-01-02", End)
 	if err != nil {
 		return resp, err
