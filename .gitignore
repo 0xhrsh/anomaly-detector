@@ -1,3 +1,4 @@
 feed_db.go
 *json
 *.env
+detector

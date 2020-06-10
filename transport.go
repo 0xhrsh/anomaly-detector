@@ -34,11 +34,13 @@ func makeFindAnomalyEndpoint(svc AnomalyDetector) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		req := request.(findAnomalyRequest)
 		resp, err := svc.FindAnomaly(req.ID, req.StartDate, req.EndDate)
-
-		return findAnomalyResponse{
+		ret := findAnomalyResponse{
 			Response: resp,
-			Err:      fmt.Sprint(err),
-		}, nil
+		}
+		if err != nil {
+			ret.Err = fmt.Sprint(err)
+		}
+		return ret, nil
 
 	}
 }
