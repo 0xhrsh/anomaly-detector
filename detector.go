@@ -42,24 +42,30 @@ func getAdjustedNumbers(arr []float64, mean float64, stdDev float64) (float64, f
 }
 
 func (num *appNumbers) getAppNumbers(nostalgia Nostalgia) error {
-	var arrDau []float64
-	var arrRequests []float64
-	var arrResponses []float64
-	var arrImpressions []float64
+	var (
+		arrDau              []float64
+		arrRequests         []float64
+		arrResponses        []float64
+		arrImpressions      []float64
+		dataWindow          int
+		movingAverageWindow int
+	)
+	dataWindow = 15
+	movingAverageWindow = 3 // should be less than dataWindow
 
-	data, err := nostalgia.FetchAppDataForRange(num.app.ID, num.app.Date, 25)
+	data, err := nostalgia.FetchAppDataForRange(num.app.ID, num.app.Date, dataWindow+10)
 
 	if err != nil {
 		return err
 	}
 
-	if len(data.Result) < 15 {
+	if len(data.Result) < dataWindow {
 		return errors.New("Not Sufficient data for Anomaly detection")
 	}
 
 	sort.Sort(data)
 
-	for i := 0; i < len(data.Result); i++ {
+	for i := 0; i < dataWindow; i++ {
 		arrDau = append(arrDau, float64(data.Result[i].Dau))
 		arrRequests = append(arrRequests, float64(data.Result[i].Requests))
 		arrResponses = append(arrResponses, float64(data.Result[i].Responses))
@@ -76,7 +82,7 @@ func (num *appNumbers) getAppNumbers(nostalgia Nostalgia) error {
 	num.meanResponses, num.stdResponses = getAdjustedNumbers(arrResponses, meanResponses, stdResponses)
 	num.meanImpressions, num.stdImpressions = getAdjustedNumbers(arrImpressions, meanImpressions, stdImpressions)
 
-	num.app.getAppData(data, 3)
+	num.app.getAppData(data, movingAverageWindow)
 
 	return nil
 }
