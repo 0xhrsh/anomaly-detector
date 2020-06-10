@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/go-kit/kit/endpoint"
 )
@@ -16,17 +15,18 @@ type findAnomalyRequest struct {
 	EndDate   string `json:"end"`
 }
 
-type appResponse struct {
-	AnomalyDau         int       `json:"dau"`
-	AnomalyResponses   int       `json:"responses"`
-	AnomalyRequests    int       `json:"requests"`
-	AnomalyImpressions int       `json:"impressions"`
-	AnomalyTime        time.Time `json:"time"`
-	Err                string    `json:"err,omitempty"`
+// AppResponse contains the information of anomaly for an app for a particular date
+type AppResponse struct {
+	AnomalyDau         int    `json:"dau"`
+	AnomalyResponses   int    `json:"responses"`
+	AnomalyRequests    int    `json:"requests"`
+	AnomalyImpressions int    `json:"impressions"`
+	AnomalyTime        string `json:"time"`
+	Err                string `json:"err,omitempty"`
 }
 
 type findAnomalyResponse struct {
-	Response []appResponse `json:"response"`
+	Response []AppResponse `json:"response"`
 	Err      string        `json:"err,omitempty"`
 }
 

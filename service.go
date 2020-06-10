@@ -9,7 +9,7 @@ import (
 
 // AnomalyDetector provides operations to detect anomalies.
 type AnomalyDetector interface {
-	FindAnomaly(string, string, string) ([]appResponse, error)
+	FindAnomaly(string, string, string) ([]AppResponse, error)
 }
 
 // appInfo is a concrete implementation of AnomalyDetector
@@ -20,9 +20,9 @@ type anomalyDetector struct {
 }
 
 // FindAnomaly finds anomaly for a given app
-func (svc anomalyDetector) FindAnomaly(ID string, Start string, End string) ([]appResponse, error) {
+func (svc anomalyDetector) FindAnomaly(ID string, Start string, End string) ([]AppResponse, error) {
 
-	var resp []appResponse
+	var resp []AppResponse
 
 	if ID == "" {
 		return resp, ErrEmpty
@@ -46,7 +46,7 @@ func (svc anomalyDetector) FindAnomaly(ID string, Start string, End string) ([]a
 	}
 
 	for d := start; d.Before(end); d = d.AddDate(0, 0, 1) {
-		var dateResponse appResponse
+		var dateResponse AppResponse
 
 		svc.num.app.Date = d
 		err = svc.num.getAppNumbers(svc.nostalgia)
@@ -60,7 +60,7 @@ func (svc anomalyDetector) FindAnomaly(ID string, Start string, End string) ([]a
 		dateResponse.AnomalyRequests = compareMetric(float64(svc.num.app.Requests), svc.num.meanRequests, svc.num.stdRequests)
 		dateResponse.AnomalyResponses = compareMetric(float64(svc.num.app.Responses), svc.num.meanResponses, svc.num.stdResponses)
 
-		dateResponse.AnomalyTime = d
+		dateResponse.AnomalyTime = d.Format("2006-01-02")
 		resp = append(resp, dateResponse)
 	}
 
