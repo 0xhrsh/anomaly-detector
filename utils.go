@@ -6,9 +6,13 @@ import (
 
 // Config contains the env config parameters to run the service
 type Config struct {
-	UserID    string `required:"true"`
-	AuthToken string `required:"true"`
-	Endpoint  string `required:"true"`
+	UserID      string `required:"true"`
+	AuthToken   string `required:"true"`
+	Endpoint    string `required:"true"`
+	WorkSpace   string `required:"true"`
+	AppPassword string `required:"true"`
+	Owner       string `required:"true"`
+	RepoSlug    string `required:"true"`
 }
 
 // App contains all fields of app
@@ -31,6 +35,12 @@ type appNumbers struct {
 	stdResponses    float64
 	meanImpressions float64
 	stdImpressions  float64
+}
+
+type commitInfo struct {
+	Date    time.Time
+	Message string
+	Author  string
 }
 
 func signum(x float64) float64 {
