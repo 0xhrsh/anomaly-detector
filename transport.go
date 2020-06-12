@@ -17,12 +17,13 @@ type findAnomalyRequest struct {
 
 // AppResponse contains the information of anomaly for an app for a particular date
 type AppResponse struct {
-	AnomalyDau         int    `json:"dau"`
-	AnomalyResponses   int    `json:"responses"`
-	AnomalyRequests    int    `json:"requests"`
-	AnomalyImpressions int    `json:"impressions"`
-	AnomalyTime        string `json:"time"`
-	Err                string `json:"err,omitempty"`
+	AnomalyDau         int          `json:"dau"`
+	AnomalyResponses   int          `json:"responses"`
+	AnomalyRequests    int          `json:"requests"`
+	AnomalyImpressions int          `json:"impressions"`
+	AnomalyTime        string       `json:"time"`
+	CodeChanges        []CommitInfo `json:"commits,omitempty"`
+	Err                string       `json:"err,omitempty"`
 }
 
 type findAnomalyResponse struct {

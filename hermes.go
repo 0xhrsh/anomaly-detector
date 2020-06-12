@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"time"
 
 	"github.com/ktrysmt/go-bitbucket"
@@ -8,7 +9,7 @@ import (
 
 // Hermes lists out the possible causes of anomalies.
 type Hermes interface {
-	CodeChanges(string) ([]commitInfo, error)
+	CodeChanges(time.Time) ([]CommitInfo, error)
 	// SystemChanges(string) string
 }
 
@@ -17,9 +18,9 @@ type hermes struct {
 	config Config
 }
 
-func (svc hermes) CodeChanges(date string) ([]commitInfo, error) {
+func (svc hermes) CodeChanges(date time.Time) ([]CommitInfo, error) {
 
-	var commits []commitInfo
+	var commits []CommitInfo
 	c := bitbucket.NewBasicAuth(svc.config.WorkSpace, svc.config.AppPassword)
 
 	opt := &bitbucket.CommitsOptions{
@@ -27,17 +28,21 @@ func (svc hermes) CodeChanges(date string) ([]commitInfo, error) {
 		RepoSlug: svc.config.RepoSlug,
 	}
 
-	res, err := c.Repositories.Commits.GetCommits(opt) //c.GetCommts(opt)
+	res, err := c.Repositories.Commits.GetCommits(opt)
 	if err != nil {
-		panic(err)
+		return commits, nil
 	}
 	allCommits := res.(map[string]interface{})["values"].([]interface{})
 
-	for i := range commits {
-		var temp commitInfo
+	for i := range allCommits {
+		var temp CommitInfo
 		temp.Author = allCommits[i].(map[string]interface{})["author"].(map[string]interface{})["raw"].(string)
-		temp.Message = allCommits[i].(map[string]interface{})["message"].(string)
-		temp.Date = allCommits[i].(map[string]interface{})["message"].(time.Time)
+		temp.Message = strings.Split(allCommits[i].(map[string]interface{})["message"].(string), "\n")[0]
+		temp.Date, _ = time.Parse(time.RFC3339, allCommits[i].(map[string]interface{})["date"].(string))
+
+		if temp.Date.After(date.AddDate(0, 0, -2)) && temp.Date.Before(date.AddDate(0, 0, 1)) {
+			commits = append(commits, temp)
+		}
 	}
 
 	return commits, nil
@@ -47,7 +52,7 @@ func (svc hermes) CodeChanges(date string) ([]commitInfo, error) {
 // 	return date
 // }
 
-func newHermes(config Config) Hermes {
+func newHermesService(config Config) Hermes {
 	svc := &hermes{
 		config: config,
 	}

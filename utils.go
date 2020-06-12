@@ -37,10 +37,11 @@ type appNumbers struct {
 	stdImpressions  float64
 }
 
-type commitInfo struct {
-	Date    time.Time
-	Message string
-	Author  string
+// CommitInfo contains attributes of commit required
+type CommitInfo struct {
+	Date    time.Time `json:"date"`
+	Message string    `json:"message"`
+	Author  string    `json:"author"`
 }
 
 func signum(x float64) float64 {
