@@ -12,7 +12,6 @@ type Config struct {
 	WorkSpace   string `required:"true"`
 	AppPassword string `required:"true"`
 	Owner       string `required:"true"`
-	RepoSlug    string `required:"true"`
 }
 
 // App contains all fields of app
@@ -39,9 +38,10 @@ type appNumbers struct {
 
 // CommitInfo contains attributes of commit required
 type CommitInfo struct {
-	Date    time.Time `json:"date"`
-	Message string    `json:"message"`
-	Author  string    `json:"author"`
+	Date     time.Time `json:"date"`
+	Message  string    `json:"message"`
+	Author   string    `json:"author"`
+	RepoSlug string    `json:"repo_slug"`
 }
 
 type activityResponse struct {
