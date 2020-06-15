@@ -51,11 +51,13 @@ func (svc anomalyDetector) FindAnomaly(ID string, Start string, End string) ([]A
 
 	for d := start; d.Before(end); d = d.AddDate(0, 0, 1) {
 		var dateResponse AppResponse
+		dateResponse.AnomalyTime = d.Format("2006-01-02")
 
 		svc.num.app.Date = d
 		err = svc.num.getAppNumbers(svc.nostalgia)
 		if err != nil {
 			dateResponse.Err = fmt.Sprint(err)
+			resp = append(resp, dateResponse)
 			continue
 		}
 
@@ -67,12 +69,20 @@ func (svc anomalyDetector) FindAnomaly(ID string, Start string, End string) ([]A
 		if isDau || isImpressions || isRequests || isResponses {
 			codeChanges, err := svc.hermes.CodeChanges(d)
 			if err != nil {
-				fmt.Println(err)
+				dateResponse.Err = fmt.Sprint(err)
+				resp = append(resp, dateResponse)
+				continue
+			}
+
+			activityLog, err := svc.hermes.SystemChanges(d)
+			if err != nil {
+				dateResponse.Err = fmt.Sprint(err)
+				resp = append(resp, dateResponse)
+				continue
 			}
 			dateResponse.CodeChanges = codeChanges
+			dateResponse.ActivityLog = activityLog
 		}
-
-		dateResponse.AnomalyTime = d.Format("2006-01-02")
 		resp = append(resp, dateResponse)
 	}
 

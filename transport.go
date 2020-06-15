@@ -23,6 +23,7 @@ type AppResponse struct {
 	AnomalyImpressions int          `json:"impressions"`
 	AnomalyTime        string       `json:"time"`
 	CodeChanges        []CommitInfo `json:"commits,omitempty"`
+	ActivityLog        []Activity   `json:"activity_log,omitempty"`
 	Err                string       `json:"err,omitempty"`
 }
 

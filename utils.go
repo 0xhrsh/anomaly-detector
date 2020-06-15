@@ -44,6 +44,19 @@ type CommitInfo struct {
 	Author  string    `json:"author"`
 }
 
+type activityResponse struct {
+	Results []Activity `json:"results"`
+}
+
+// Activity contains the activity log for a date
+type Activity struct {
+	Callee    string `json:"callee"`
+	Text      string `json:"text"`
+	Level     string `json:"level"`
+	Tag       string `json:"tag"`
+	CreatedAt string `json:"created_at"`
+}
+
 func signum(x float64) float64 {
 	if x >= 0 {
 		return 1.0
