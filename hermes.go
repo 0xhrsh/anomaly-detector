@@ -41,8 +41,10 @@ func (svc hermes) CodeChanges(date time.Time) ([]CommitInfo, error) {
 		for i := range allCommits {
 			var temp CommitInfo
 
-			if tempAuthor, ok := allCommits[i].(map[string]interface{})["author"].(map[string]interface{})["raw"].(string); ok {
-				temp.Author = tempAuthor
+			if authorInfo, ok := allCommits[i].(map[string]interface{})["author"]; ok {
+				if tempAuthor, ok := authorInfo.(map[string]interface{})["raw"].(string); ok {
+					temp.Author = tempAuthor
+				}
 			}
 			if tempMessage, ok := allCommits[i].(map[string]interface{})["message"].(string); ok {
 				temp.Message = strings.Split(tempMessage, "\n")[0]
