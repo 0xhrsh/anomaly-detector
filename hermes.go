@@ -37,27 +37,34 @@ func (svc hermes) CodeChanges(date time.Time) ([]CommitInfo, error) {
 	if err != nil {
 		return commits, nil
 	}
-	if allCommits, ok := res.(map[string]interface{})["values"].([]interface{}); ok {
-		for i := range allCommits {
-			var temp CommitInfo
 
-			if authorInfo, ok := allCommits[i].(map[string]interface{})["author"]; ok {
-				if tempAuthor, ok := authorInfo.(map[string]interface{})["raw"].(string); ok {
-					temp.Author = tempAuthor
+	if res, ok := res.(map[string]interface{}); ok {
+		if allCommits, ok := res["values"].([]interface{}); ok {
+			for i := range allCommits {
+				var commit CommitInfo
+
+				if authorInfo, ok := allCommits[i].(map[string]interface{}); ok {
+					if commitAuthor, ok := authorInfo["author"].(map[string]interface{}); ok {
+						commit.Author, _ = commitAuthor["raw"].(string)
+					}
+				}
+				if commitMessage, ok := allCommits[i].(map[string]interface{}); ok {
+					if temp, ok := commitMessage["message"].(string); ok {
+						commit.Message = strings.Split(temp, "\n")[0]
+					}
+				}
+				if commitDate, ok := allCommits[i].(map[string]interface{}); ok {
+					if temp, ok := commitDate["date"].(string); ok {
+						commit.Date, _ = time.Parse(time.RFC3339, temp)
+					}
+				}
+
+				if commit.Date.After(date.AddDate(0, 0, -2)) && commit.Date.Before(date.AddDate(0, 0, 1)) {
+					commits = append(commits, commit)
 				}
 			}
-			if tempMessage, ok := allCommits[i].(map[string]interface{})["message"].(string); ok {
-				temp.Message = strings.Split(tempMessage, "\n")[0]
-			}
-			if tempDate, ok := allCommits[i].(map[string]interface{})["date"].(string); ok {
-				temp.Date, _ = time.Parse(time.RFC3339, tempDate)
-			}
-
-			if temp.Date.After(date.AddDate(0, 0, -2)) && temp.Date.Before(date.AddDate(0, 0, 1)) {
-				commits = append(commits, temp)
-			}
+			return commits, nil
 		}
-		return commits, nil
 	}
 
 	return commits, errors.New("Error in unmarshalling bitbucket response")
