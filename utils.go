@@ -12,7 +12,6 @@ type Config struct {
 	WorkSpace   string `required:"true"`
 	AppPassword string `required:"true"`
 	Owner       string `required:"true"`
-	RepoSlug    string `required:"true"`
 }
 
 // App contains all fields of app
@@ -37,10 +36,25 @@ type appNumbers struct {
 	stdImpressions  float64
 }
 
-type commitInfo struct {
-	Date    time.Time
-	Message string
-	Author  string
+// CommitInfo contains attributes of commit required
+type CommitInfo struct {
+	Date     time.Time `json:"date"`
+	Message  string    `json:"message"`
+	Author   string    `json:"author"`
+	RepoSlug string    `json:"repo_slug"`
+}
+
+type activityResponse struct {
+	Results []Activity `json:"results"`
+}
+
+// Activity contains the activity log for a date
+type Activity struct {
+	Callee    string `json:"callee"`
+	Text      string `json:"text"`
+	Level     string `json:"level"`
+	Tag       string `json:"tag"`
+	CreatedAt string `json:"created_at"`
 }
 
 func signum(x float64) float64 {

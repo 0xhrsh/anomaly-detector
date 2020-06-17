@@ -1,6 +1,12 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
+	"net/http"
+	"net/url"
+	"path"
+	"strings"
 	"time"
 
 	"github.com/ktrysmt/go-bitbucket"
@@ -8,8 +14,8 @@ import (
 
 // Hermes lists out the possible causes of anomalies.
 type Hermes interface {
-	CodeChanges(string) ([]commitInfo, error)
-	// SystemChanges(string) string
+	CodeChanges(time.Time) ([]CommitInfo, error)
+	SystemChanges(time.Time) ([]Activity, error)
 }
 
 // hermes is a concrete implementation of Hermes
@@ -17,39 +23,121 @@ type hermes struct {
 	config Config
 }
 
-func (svc hermes) CodeChanges(date string) ([]commitInfo, error) {
+func (svc hermes) CodeChanges(date time.Time) ([]CommitInfo, error) {
 
-	var commits []commitInfo
+	var commits []CommitInfo
 	c := bitbucket.NewBasicAuth(svc.config.WorkSpace, svc.config.AppPassword)
 
-	opt := &bitbucket.CommitsOptions{
-		Owner:    svc.config.Owner,
-		RepoSlug: svc.config.RepoSlug,
+	repo := &bitbucket.RepositoriesOptions{
+		Owner: svc.config.Owner,
 	}
+	repos, _ := c.Repositories.ListForAccount(repo)
 
-	res, err := c.Repositories.Commits.GetCommits(opt) //c.GetCommts(opt)
-	if err != nil {
-		panic(err)
-	}
-	allCommits := res.(map[string]interface{})["values"].([]interface{})
+	for i := 0; i < int(repos.Size); i++ {
+		opt := &bitbucket.CommitsOptions{
+			Owner:    svc.config.Owner,
+			RepoSlug: repos.Items[i].Slug,
+		}
 
-	for i := range commits {
-		var temp commitInfo
-		temp.Author = allCommits[i].(map[string]interface{})["author"].(map[string]interface{})["raw"].(string)
-		temp.Message = allCommits[i].(map[string]interface{})["message"].(string)
-		temp.Date = allCommits[i].(map[string]interface{})["message"].(time.Time)
+		res, err := c.Repositories.Commits.GetCommits(opt)
+		if err != nil {
+			return commits, nil
+		}
+
+		repoCommits, err := getCommitsForRepo(res, date, repos.Items[i].Slug)
+		if err != nil {
+			return commits, err
+		}
+
+		commits = append(commits, repoCommits...)
+
 	}
 
 	return commits, nil
 }
 
-// func (hermes) SystemChanges(date string) string {
-// 	return date
-// }
+func (svc hermes) SystemChanges(date time.Time) ([]Activity, error) {
+	var nResp activityResponse
+	requestURL, err := url.Parse(svc.config.Endpoint)
 
-func newHermes(config Config) Hermes {
+	if err != nil {
+		return nResp.Results, nil
+	}
+
+	requestURL.Path = path.Join(requestURL.Path, "v3", "logs", "search")
+
+	query := requestURL.Query()
+	query.Add("limit", "20")
+	query.Add("offset", "0")
+	query.Add("from", date.AddDate(0, 0, -2).Format("2006-01-02"))
+	query.Add("to", date.Format("2006-01-02"))
+
+	requestURL.RawQuery = query.Encode()
+
+	req, err := http.NewRequest("GET", requestURL.String(), nil)
+
+	if err != nil {
+		return nResp.Results, nil
+	}
+
+	req.Header.Set("User-Id", svc.config.UserID)
+	req.Header.Set("Auth-Token", svc.config.AuthToken)
+	req.Header.Set("DNT", "1")
+
+	var client http.Client
+
+	res, err := client.Do(req)
+
+	if err != nil {
+		return nResp.Results, nil
+	}
+
+	decoder := json.NewDecoder(res.Body)
+	err = decoder.Decode(&nResp)
+
+	return nResp.Results, err
+}
+
+func newHermesService(config Config) Hermes {
 	svc := &hermes{
 		config: config,
 	}
 	return svc
+}
+
+func getCommitsForRepo(res interface{}, date time.Time, slug string) ([]CommitInfo, error) {
+	var commits []CommitInfo
+
+	if res, ok := res.(map[string]interface{}); ok {
+		if allCommits, ok := res["values"].([]interface{}); ok {
+
+			for i := range allCommits {
+				var commit CommitInfo
+
+				if authorInfo, ok := allCommits[i].(map[string]interface{}); ok {
+					if commitAuthor, ok := authorInfo["author"].(map[string]interface{}); ok {
+						commit.Author, _ = commitAuthor["raw"].(string)
+					}
+				}
+				if commitMessage, ok := allCommits[i].(map[string]interface{}); ok {
+					if temp, ok := commitMessage["message"].(string); ok {
+						commit.Message = strings.Split(temp, "\n")[0]
+					}
+				}
+				if commitDate, ok := allCommits[i].(map[string]interface{}); ok {
+					if temp, ok := commitDate["date"].(string); ok {
+						commit.Date, _ = time.Parse(time.RFC3339, temp)
+					}
+				}
+
+				if commit.Date.After(date.AddDate(0, 0, -2)) && commit.Date.Before(date.AddDate(0, 0, 1)) {
+					commit.RepoSlug = slug
+					commits = append(commits, commit)
+				}
+			}
+			return commits, nil
+		}
+	}
+
+	return commits, errors.New("Error in unmarshalling bitbucket response")
 }
