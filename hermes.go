@@ -158,5 +158,5 @@ func (svc hermes) GetRepos(isAnomaly IsAnomaly) ([]string, error) {
 		repos = append(repos, svc.config.Responses...)
 	}
 
-	return []string{}, nil
+	return repos, nil
 }
