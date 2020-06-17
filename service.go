@@ -12,7 +12,7 @@ type AnomalyDetector interface {
 	FindAnomaly(string, string, string) ([]AppResponse, error)
 }
 
-// appInfo is a concrete implementation of AnomalyDetector
+// appInfo isAnomaly a concrete implementation of AnomalyDetector
 type anomalyDetector struct {
 	nostalgia Nostalgia
 	hermes    Hermes
@@ -23,14 +23,10 @@ type anomalyDetector struct {
 // FindAnomaly finds anomaly for a given app
 func (svc anomalyDetector) FindAnomaly(ID string, Start string, End string) ([]AppResponse, error) {
 	var (
-		resp          []AppResponse
-		err           error
-		start         time.Time
-		end           time.Time
-		isDau         bool
-		isImpressions bool
-		isRequests    bool
-		isResponses   bool
+		resp  []AppResponse
+		err   error
+		start time.Time
+		end   time.Time
 	)
 
 	if ID == "" {
@@ -50,7 +46,10 @@ func (svc anomalyDetector) FindAnomaly(ID string, Start string, End string) ([]A
 	}
 
 	for d := start; d.Before(end); d = d.AddDate(0, 0, 1) {
-		var dateResponse AppResponse
+		var (
+			dateResponse AppResponse
+			isAnomaly    IsAnomaly
+		)
 		dateResponse.AnomalyTime = d.Format("2006-01-02")
 
 		svc.num.app.Date = d
@@ -61,20 +60,20 @@ func (svc anomalyDetector) FindAnomaly(ID string, Start string, End string) ([]A
 			continue
 		}
 
-		dateResponse.AnomalyDau, isDau = compareMetric(float64(svc.num.app.Dau), svc.num.meanDau, svc.num.stdDau)
-		dateResponse.AnomalyImpressions, isImpressions = compareMetric(float64(svc.num.app.Impressions), svc.num.meanImpressions, svc.num.stdImpressions)
-		dateResponse.AnomalyRequests, isRequests = compareMetric(float64(svc.num.app.Requests), svc.num.meanRequests, svc.num.stdRequests)
-		dateResponse.AnomalyResponses, isResponses = compareMetric(float64(svc.num.app.Responses), svc.num.meanResponses, svc.num.stdResponses)
+		dateResponse.AnomalyDau, isAnomaly.Dau = compareMetric(float64(svc.num.app.Dau), svc.num.meanDau, svc.num.stdDau)
+		dateResponse.AnomalyImpressions, isAnomaly.Impressions = compareMetric(float64(svc.num.app.Impressions), svc.num.meanImpressions, svc.num.stdImpressions)
+		dateResponse.AnomalyRequests, isAnomaly.Requests = compareMetric(float64(svc.num.app.Requests), svc.num.meanRequests, svc.num.stdRequests)
+		dateResponse.AnomalyResponses, isAnomaly.Responses = compareMetric(float64(svc.num.app.Responses), svc.num.meanResponses, svc.num.stdResponses)
 
-		if isDau || isImpressions || isRequests || isResponses {
-			codeChanges, err := svc.hermes.CodeChanges(d)
+		if isAnomaly.Dau || isAnomaly.Impressions || isAnomaly.Requests || isAnomaly.Responses {
+			codeChanges, err := svc.hermes.CodeChanges(d, isAnomaly)
 			if err != nil {
 				dateResponse.Err = fmt.Sprint(err)
 				resp = append(resp, dateResponse)
 				continue
 			}
 
-			activityLog, err := svc.hermes.SystemChanges(d)
+			activityLog, err := svc.hermes.SystemChanges(d, isAnomaly)
 			if err != nil {
 				dateResponse.Err = fmt.Sprint(err)
 				resp = append(resp, dateResponse)
@@ -100,7 +99,7 @@ func compareMetric(num float64, mean float64, stdDev float64) (int, bool) {
 	return 0, false
 }
 
-// ErrEmpty is returned when an input string is empty.
+// ErrEmpty isAnomaly returned when an input string isAnomaly empty.
 var ErrEmpty = errors.New("empty string")
 
 func newAnomalyDetector(config Config) AnomalyDetector {
