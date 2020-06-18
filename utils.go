@@ -6,16 +6,20 @@ import (
 
 // Config contains the env config parameters to run the service
 type Config struct {
-	UserID      string   `required:"true"`
-	AuthToken   string   `required:"true"`
-	Endpoint    string   `required:"true"`
-	WorkSpace   string   `required:"true"`
-	AppPassword string   `required:"true"`
-	Owner       string   `required:"true"`
-	DAU         []string `required:"true"`
-	Impressions []string `required:"true"`
-	Requests    []string `required:"true"`
-	Responses   []string `required:"true"`
+	UserID           string   `required:"true"`
+	AuthToken        string   `required:"true"`
+	Endpoint         string   `required:"true"`
+	WorkSpace        string   `required:"true"`
+	AppPassword      string   `required:"true"`
+	Owner            string   `required:"true"`
+	DAURepos         []string `required:"true"`
+	ImpressionsRepos []string `required:"true"`
+	RequestsRepos    []string `required:"true"`
+	ResponsesRepos   []string `required:"true"`
+	DAUSVC           []string `required:"true"`
+	ImpressionsSVC   []string `required:"true"`
+	RequestsSVC      []string `required:"true"`
+	ResponsesSVC     []string `required:"true"`
 }
 
 // App contains all fields of app

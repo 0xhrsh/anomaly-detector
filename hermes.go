@@ -57,7 +57,10 @@ func (svc hermes) CodeChanges(date time.Time, isAnomaly IsAnomaly) ([]CommitInfo
 }
 
 func (svc hermes) SystemChanges(date time.Time, isAnomaly IsAnomaly) ([]Activity, error) {
-	var nResp activityResponse
+	var (
+		nResp activityResponse
+		ret   []Activity
+	)
 	requestURL, err := url.Parse(svc.config.Endpoint)
 
 	if err != nil {
@@ -95,7 +98,34 @@ func (svc hermes) SystemChanges(date time.Time, isAnomaly IsAnomaly) ([]Activity
 	decoder := json.NewDecoder(res.Body)
 	err = decoder.Decode(&nResp)
 
-	return nResp.Results, err
+	for _, act := range nResp.Results {
+		if isAnomaly.Dau {
+			if screenActivity(act, svc.config.DAUSVC) {
+				ret = append(ret, act)
+				continue
+			}
+		}
+		if isAnomaly.Impressions {
+			if screenActivity(act, svc.config.ImpressionsSVC) {
+				ret = append(ret, act)
+				continue
+			}
+		}
+		if isAnomaly.Responses {
+			if screenActivity(act, svc.config.RequestsSVC) {
+				ret = append(ret, act)
+				continue
+			}
+		}
+		if isAnomaly.Requests {
+			if screenActivity(act, svc.config.ResponsesSVC) {
+				ret = append(ret, act)
+				continue
+			}
+		}
+	}
+
+	return ret, err
 }
 
 func newHermesService(config Config) Hermes {
@@ -146,17 +176,26 @@ func GetCommitsForRepo(res interface{}, date time.Time, slug string) ([]CommitIn
 func (svc hermes) GetRepos(isAnomaly IsAnomaly) ([]string, error) {
 	var repos []string
 	if isAnomaly.Dau {
-		repos = append(repos, svc.config.DAU...)
+		repos = append(repos, svc.config.DAURepos...)
 	}
 	if isAnomaly.Impressions {
-		repos = append(repos, svc.config.Impressions...)
+		repos = append(repos, svc.config.ImpressionsRepos...)
 	}
 	if isAnomaly.Requests {
-		repos = append(repos, svc.config.Requests...)
+		repos = append(repos, svc.config.RequestsRepos...)
 	}
 	if isAnomaly.Responses {
-		repos = append(repos, svc.config.Responses...)
+		repos = append(repos, svc.config.ResponsesRepos...)
 	}
 
 	return repos, nil
+}
+
+func screenActivity(activity Activity, whiteListed []string) bool {
+	for _, a := range whiteListed {
+		if activity.Callee == a {
+			return true
+		}
+	}
+	return false
 }
