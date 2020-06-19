@@ -23,6 +23,11 @@ Helps in finding anomalies in GreedyGame app numbers.
    $ go mod download
 ```
 
+- BitBucket Client
+```
+   Create OAuth Consumer for bitbucket workspace
+```
+
 #### Running:
 - 
 ```
@@ -30,5 +35,5 @@ Helps in finding anomalies in GreedyGame app numbers.
 ```
 - 
 ```
-   $ USER_ID=<user id> AUTH_TOKEN=<auth token> ENDPOINT=<endpoint url> ./detector
+   $ USER_ID=<user id> AUTH_TOKEN=<auth token> ENDPOINT=<endpoint url> CLIENTID=<client_id> CLIENT_SECRET=<client_secret> OWNER=<owner-of workspace> DAU_REPOS=<slug1>,<slug2> (OTHER REPOS) DAUSVC=<SVC-1>,<SVC-2> (SVC for other parameters)  ./detector
 ```
