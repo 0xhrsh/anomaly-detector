@@ -21,12 +21,12 @@ type Hermes interface {
 // hermes is a concrete implementation of Hermes
 type hermes struct {
 	config Config
+	c      *bitbucket.Client
 }
 
 func (svc hermes) CodeChanges(date time.Time, isAnomaly IsAnomaly) ([]CommitInfo, error) {
 
 	var commits []CommitInfo
-	c := bitbucket.NewOAuth(svc.config.ClientID, svc.config.ClientSecret)
 
 	repos, err := svc.GetRepos(isAnomaly)
 	if err != nil {
@@ -39,7 +39,7 @@ func (svc hermes) CodeChanges(date time.Time, isAnomaly IsAnomaly) ([]CommitInfo
 			RepoSlug: repos[i],
 		}
 
-		res, err := c.Repositories.Commits.GetCommits(opt)
+		res, err := svc.c.Repositories.Commits.GetCommits(opt)
 		if err != nil {
 			return commits, nil
 		}
@@ -131,6 +131,7 @@ func (svc hermes) SystemChanges(date time.Time, isAnomaly IsAnomaly) ([]Activity
 func newHermesService(config Config) Hermes {
 	svc := &hermes{
 		config: config,
+		c:      bitbucket.NewOAuth(config.ClientID, config.ClientSecret),
 	}
 	return svc
 }
