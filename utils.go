@@ -9,8 +9,8 @@ type Config struct {
 	UserID           string   `required:"true"`
 	AuthToken        string   `required:"true"`
 	Endpoint         string   `required:"true"`
-	WorkSpace        string   `required:"true"`
-	AppPassword      string   `required:"true"`
+	ClientID         string   `required:"true"`
+	ClientSecret     string   `required:"true"`
 	Owner            string   `required:"true"`
 	DAURepos         []string `required:"true"`
 	ImpressionsRepos []string `required:"true"`

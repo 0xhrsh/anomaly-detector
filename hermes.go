@@ -26,7 +26,7 @@ type hermes struct {
 func (svc hermes) CodeChanges(date time.Time, isAnomaly IsAnomaly) ([]CommitInfo, error) {
 
 	var commits []CommitInfo
-	c := bitbucket.NewBasicAuth(svc.config.WorkSpace, svc.config.AppPassword)
+	c := bitbucket.NewOAuth(svc.config.ClientID, svc.config.ClientSecret)
 
 	repos, err := svc.GetRepos(isAnomaly)
 	if err != nil {
