@@ -6,12 +6,20 @@ import (
 
 // Config contains the env config parameters to run the service
 type Config struct {
-	UserID      string `required:"true"`
-	AuthToken   string `required:"true"`
-	Endpoint    string `required:"true"`
-	WorkSpace   string `required:"true"`
-	AppPassword string `required:"true"`
-	Owner       string `required:"true"`
+	UserID           string   `required:"true"`
+	AuthToken        string   `required:"true"`
+	Endpoint         string   `required:"true"`
+	ClientID         string   `required:"true"`
+	ClientSecret     string   `required:"true"`
+	Owner            string   `required:"true"`
+	DAURepos         []string `required:"true"`
+	ImpressionsRepos []string `required:"true"`
+	RequestsRepos    []string `required:"true"`
+	ResponsesRepos   []string `required:"true"`
+	DAUSVC           []string `required:"true"`
+	ImpressionsSVC   []string `required:"true"`
+	RequestsSVC      []string `required:"true"`
+	ResponsesSVC     []string `required:"true"`
 }
 
 // App contains all fields of app
@@ -55,6 +63,14 @@ type Activity struct {
 	Level     string `json:"level"`
 	Tag       string `json:"tag"`
 	CreatedAt string `json:"created_at"`
+}
+
+// IsAnomaly tells whether an anomaly exists for a field
+type IsAnomaly struct {
+	Dau         bool
+	Impressions bool
+	Requests    bool
+	Responses   bool
 }
 
 func signum(x float64) float64 {

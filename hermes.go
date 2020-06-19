@@ -14,37 +14,37 @@ import (
 
 // Hermes lists out the possible causes of anomalies.
 type Hermes interface {
-	CodeChanges(time.Time) ([]CommitInfo, error)
-	SystemChanges(time.Time) ([]Activity, error)
+	CodeChanges(time.Time, IsAnomaly) ([]CommitInfo, error)
+	SystemChanges(time.Time, IsAnomaly) ([]Activity, error)
 }
 
 // hermes is a concrete implementation of Hermes
 type hermes struct {
 	config Config
+	c      *bitbucket.Client
 }
 
-func (svc hermes) CodeChanges(date time.Time) ([]CommitInfo, error) {
+func (svc hermes) CodeChanges(date time.Time, isAnomaly IsAnomaly) ([]CommitInfo, error) {
 
 	var commits []CommitInfo
-	c := bitbucket.NewBasicAuth(svc.config.WorkSpace, svc.config.AppPassword)
 
-	repo := &bitbucket.RepositoriesOptions{
-		Owner: svc.config.Owner,
+	repos, err := svc.GetRepos(isAnomaly)
+	if err != nil {
+		return commits, err
 	}
-	repos, _ := c.Repositories.ListForAccount(repo)
 
-	for i := 0; i < int(repos.Size); i++ {
+	for i := 0; i < len(repos); i++ {
 		opt := &bitbucket.CommitsOptions{
 			Owner:    svc.config.Owner,
-			RepoSlug: repos.Items[i].Slug,
+			RepoSlug: repos[i],
 		}
 
-		res, err := c.Repositories.Commits.GetCommits(opt)
+		res, err := svc.c.Repositories.Commits.GetCommits(opt)
 		if err != nil {
 			return commits, nil
 		}
 
-		repoCommits, err := getCommitsForRepo(res, date, repos.Items[i].Slug)
+		repoCommits, err := GetCommitsForRepo(res, date, repos[i])
 		if err != nil {
 			return commits, err
 		}
@@ -56,8 +56,11 @@ func (svc hermes) CodeChanges(date time.Time) ([]CommitInfo, error) {
 	return commits, nil
 }
 
-func (svc hermes) SystemChanges(date time.Time) ([]Activity, error) {
-	var nResp activityResponse
+func (svc hermes) SystemChanges(date time.Time, isAnomaly IsAnomaly) ([]Activity, error) {
+	var (
+		nResp activityResponse
+		ret   []Activity
+	)
 	requestURL, err := url.Parse(svc.config.Endpoint)
 
 	if err != nil {
@@ -95,17 +98,46 @@ func (svc hermes) SystemChanges(date time.Time) ([]Activity, error) {
 	decoder := json.NewDecoder(res.Body)
 	err = decoder.Decode(&nResp)
 
-	return nResp.Results, err
+	for _, act := range nResp.Results {
+		if isAnomaly.Dau {
+			if screenActivity(act, svc.config.DAUSVC) {
+				ret = append(ret, act)
+				continue
+			}
+		}
+		if isAnomaly.Impressions {
+			if screenActivity(act, svc.config.ImpressionsSVC) {
+				ret = append(ret, act)
+				continue
+			}
+		}
+		if isAnomaly.Responses {
+			if screenActivity(act, svc.config.RequestsSVC) {
+				ret = append(ret, act)
+				continue
+			}
+		}
+		if isAnomaly.Requests {
+			if screenActivity(act, svc.config.ResponsesSVC) {
+				ret = append(ret, act)
+				continue
+			}
+		}
+	}
+
+	return ret, err
 }
 
 func newHermesService(config Config) Hermes {
 	svc := &hermes{
 		config: config,
+		c:      bitbucket.NewOAuth(config.ClientID, config.ClientSecret),
 	}
 	return svc
 }
 
-func getCommitsForRepo(res interface{}, date time.Time, slug string) ([]CommitInfo, error) {
+// GetCommitsForRepo gets all commits in a repo given the repo slug
+func GetCommitsForRepo(res interface{}, date time.Time, slug string) ([]CommitInfo, error) {
 	var commits []CommitInfo
 
 	if res, ok := res.(map[string]interface{}); ok {
@@ -140,4 +172,31 @@ func getCommitsForRepo(res interface{}, date time.Time, slug string) ([]CommitIn
 	}
 
 	return commits, errors.New("Error in unmarshalling bitbucket response")
+}
+
+func (svc hermes) GetRepos(isAnomaly IsAnomaly) ([]string, error) {
+	var repos []string
+	if isAnomaly.Dau {
+		repos = append(repos, svc.config.DAURepos...)
+	}
+	if isAnomaly.Impressions {
+		repos = append(repos, svc.config.ImpressionsRepos...)
+	}
+	if isAnomaly.Requests {
+		repos = append(repos, svc.config.RequestsRepos...)
+	}
+	if isAnomaly.Responses {
+		repos = append(repos, svc.config.ResponsesRepos...)
+	}
+
+	return repos, nil
+}
+
+func screenActivity(activity Activity, whiteListed []string) bool {
+	for _, a := range whiteListed {
+		if activity.Callee == a {
+			return true
+		}
+	}
+	return false
 }
