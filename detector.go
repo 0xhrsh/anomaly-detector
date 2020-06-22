@@ -88,16 +88,22 @@ func (num *appNumbers) getAppNumbers(nostalgia Nostalgia) error {
 }
 
 func (app *App) getAppData(data *NostalgiaResponse, window int) {
+	var (
+		dau         = 0
+		requests    = 0
+		responses   = 0
+		impressions = 0
+	)
 
 	for i := 0; i < window; i++ {
-		app.Dau += data.Result[i].Dau
-		app.Requests += data.Result[i].Requests
-		app.Responses += data.Result[i].Responses
-		app.Impressions += data.Result[i].Impressions
+		dau += data.Result[i].Dau
+		requests += data.Result[i].Requests
+		responses += data.Result[i].Responses
+		impressions += data.Result[i].Impressions
 	}
-	app.Dau /= window
-	app.Requests /= window
-	app.Responses /= window
-	app.Responses /= window
 
+	app.Dau = dau / window
+	app.Requests = requests / window
+	app.Responses = responses / window
+	app.Impressions = impressions / window
 }

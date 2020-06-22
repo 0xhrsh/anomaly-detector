@@ -92,6 +92,7 @@ func (svc anomalyDetector) FindAnomaly(ID string, Start string, End string) ([]A
 func compareMetric(num float64, mean float64, stdDev float64) (float64, bool) {
 
 	stdDev = math.Min(stdDev, 0.35*mean) // Limiting the range of standard deviation
+	stdDev = math.Max(stdDev, (0.05*mean)+20)
 
 	if num > mean+2*stdDev || num < mean-2*stdDev {
 		return math.Round(((num-mean)*100/(stdDev))-1) / 100, true
