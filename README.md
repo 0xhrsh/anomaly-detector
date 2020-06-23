@@ -41,10 +41,10 @@ Helps in finding anomalies in GreedyGame app numbers.
 #### Running:
 - Repos
 ```
-DAU_REPOS=service-collector,service-thanos-2,service-apps,service-partner-collector
-IMPRESSIONS_REPOS=service-campaign,service-adgroup,service-thanos-2,service-mystique,service-units
-RESPONSES_REPOS=service-campaign,service-adgroup,service-thanos-2,service-mystique,service-units
-REQUESTS_REPOS=service-campaign,service-adgroup,service-thanos-2,service-mystique,service-units,service-apps 
+DAU_REPOS = service-collector,service-thanos-2,service-apps,service-partner-collector
+IMPRESSIONS_REPOS = service-campaign,service-adgroup,service-thanos-2,service-mystique,service-units
+RESPONSES_REPOS = service-campaign,service-adgroup,service-thanos-2,service-mystique,service-units
+REQUESTS_REPOS = service-campaign,service-adgroup,service-thanos-2,service-mystique,service-units,service-apps 
 ```
 - Services for Activity logger
 ```
