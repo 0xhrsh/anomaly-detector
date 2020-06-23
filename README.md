@@ -35,18 +35,21 @@ Helps in finding anomalies in GreedyGame app numbers.
 ```
 - Run the Program
 ```
-   $ USER_ID=<user id> AUTH_TOKEN=<auth token> ENDPOINT=<endpoint url> CLIENTID=<client_id> CLIENT_SECRET=<client_secret> OWNER=<owner-of workspace> DAU_REPOS=<slug1>,<slug2> (OTHER REPOS) DAUSVC=<SVC-1>,<SVC-2> (SVC for other parameters)  ./detector
+   $ USER_ID=<user id> AUTH_TOKEN=<auth token> ENDPOINT=<endpoint url> CLIENTID=<client_id> CLIENT_SECRET=<client_secret> OWNER=<owner-of workspace> DAU_REPOS=<slug1>,<slug2> (OTHER REPOS) DAU_SVC=<SVC-1>,<SVC-2> (SVC for other parameters)  ./detector
 ```
 
 #### Running:
 - Repos
 ```
-   DAU_REPOS = 
+DAU_REPOS=service-collector,service-thanos-2,service-apps,service-partner-collector
+IMPRESSIONS_REPOS=service-campaign,service-adgroup,service-thanos-2,service-mystique,service-units
+RESPONSES_REPOS=service-campaign,service-adgroup,service-thanos-2,service-mystique,service-units
+REQUESTS_REPOS=service-campaign,service-adgroup,service-thanos-2,service-mystique,service-units,service-apps 
 ```
 - Services for Activity logger
 ```
-   DAU = SVC-APPS, SVC-COLLECTOR, SVC-THANOS 
-IMPRESSIONS = SVC-CAMPAIGN, SVC-ADGROUP, SVC-THANOS, SVC-UNITS ,SVC-MYSTIQUE 
-RESPONSES = SVC-CAMPAIGN, SVC-ADGROUP, SVC-THANOS, SVC-UNITS, SVC-MYSTIQUE 
-REQUESTSSVC = SVC-CAMPAIGN, SVC-ADGROUP, SVC-THANOS, SVC-MYSTIQUE, SVC-UNITS, SVC-APPS
+DAU_SVC = SVC-APPS, SVC-COLLECTOR, SVC-THANOS 
+IMPRESSIONS_SVC = SVC-CAMPAIGN, SVC-ADGROUP, SVC-THANOS, SVC-UNITS ,SVC-MYSTIQUE 
+RESPONSES_SVC = SVC-CAMPAIGN, SVC-ADGROUP, SVC-THANOS, SVC-UNITS, SVC-MYSTIQUE 
+REQUESTS_SVC = SVC-CAMPAIGN, SVC-ADGROUP, SVC-THANOS, SVC-MYSTIQUE, SVC-UNITS, SVC-APPS
 ```
